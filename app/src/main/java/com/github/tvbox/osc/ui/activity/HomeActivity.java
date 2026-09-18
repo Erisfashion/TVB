@@ -147,7 +147,7 @@ public class HomeActivity extends BaseActivity {
                 mGridView.post(() -> {
                     View firstChild = Objects.requireNonNull(mGridView.getLayoutManager()).findViewByPosition(0);
                     if (firstChild != null) {
-                        mGridView.setSelectedPosition(0);
+                        mGridView.setSelection(0);
                         firstChild.requestFocus();
                     }
                 });

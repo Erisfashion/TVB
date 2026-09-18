@@ -328,32 +328,46 @@ public class RemoteServer extends NanoHTTPD {
     }
 
     @SuppressLint("DefaultLocale")
-    public static String getLocalIPAddress(Context context) {
-        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
-        if (ipAddress == 0) {
-            try {
-                Enumeration<NetworkInterface> enumerationNi = NetworkInterface.getNetworkInterfaces();
-                while (enumerationNi.hasMoreElements()) {
-                    NetworkInterface networkInterface = enumerationNi.nextElement();
-                    String interfaceName = networkInterface.getDisplayName();
-                    if (interfaceName.equals("eth0") || interfaceName.equals("wlan0")) {
-                        Enumeration<InetAddress> enumIpAddr = networkInterface.getInetAddresses();
+    public String getLocalIPAddress(Context context) {
+        try {
+            Context ctx = (context != null) ? context.getApplicationContext() : com.github.tvbox.osc.base.App.getInstance().getApplicationContext();
+            if (ctx != null) {
+                android.net.wifi.WifiManager wifiManager = (android.net.wifi.WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+                if (wifiManager != null) {
+                    android.net.wifi.WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                    if (wifiInfo != null) {
+                        int ipAddress = wifiInfo.getIpAddress();
+                        if (ipAddress != 0) {
+                            return (ipAddress & 0xFF) + "." +
+                                    ((ipAddress >> 8) & 0xFF) + "." +
+                                    ((ipAddress >> 16) & 0xFF) + "." +
+                                    (ipAddress >> 24 & 0xFF);
+                        }
+                    }
+                }
+            }
+            java.util.Enumeration<java.net.NetworkInterface> en = java.net.NetworkInterface.getNetworkInterfaces();
+            if (en != null) {
+                while (en.hasMoreElements()) {
+                    java.net.NetworkInterface intf = en.nextElement();
+                    if (intf == null) continue;
+                    java.util.Enumeration<java.net.InetAddress> enumIpAddr = intf.getInetAddresses();
+                    if (enumIpAddr != null) {
                         while (enumIpAddr.hasMoreElements()) {
-                            InetAddress inetAddress = enumIpAddr.nextElement();
-                            if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
+                            java.net.InetAddress inetAddress = enumIpAddr.nextElement();
+                            if (inetAddress != null && !inetAddress.isLoopbackAddress() && inetAddress instanceof java.net.Inet4Address) {
                                 return inetAddress.getHostAddress();
                             }
                         }
                     }
                 }
-            } catch (SocketException e) {
-                e.printStackTrace();
             }
-        } else {
-            return String.format("%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff), (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
-        }
-        return "0.0.0.0";
+        } catch (Throwable ignored) {}
+        return "127.0.0.1";
+    }
+
+    public String getLocalIPAddress() {
+        return getLocalIPAddress(mContext);
     }
 
     String fileTime(long time, String fmt) {

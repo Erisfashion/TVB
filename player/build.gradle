@@ -31,12 +31,17 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.3.1'
 
-    // IJKPlayer 核心及 x86 原生底层解码包
-    implementation 'tv.danmaku.ijk.media:ijkplayer-java:0.8.8'
-    implementation 'tv.danmaku.ijk.media:ijkplayer-x86:0.8.8'
-    implementation 'tv.danmaku.ijk.media:ijkplayer-armv7a:0.8.8'
+    // 仅拉取 x86 与 armv7a 原生 C/C++ 库，排除 Java 重复类
+    implementation('tv.danmaku.ijk.media:ijkplayer-x86:0.8.8') {
+        exclude group: 'tv.danmaku.ijk.media', module: 'ijkplayer-java'
+    }
+    implementation('tv.danmaku.ijk.media:ijkplayer-armv7a:0.8.8') {
+        exclude group: 'tv.danmaku.ijk.media', module: 'ijkplayer-java'
+    }
 
-    // ExoPlayer 基础依赖
+    // ExoPlayer 核心依赖
     implementation 'com.google.android.exoplayer:exoplayer-core:2.14.2'
     implementation 'com.google.android.exoplayer:exoplayer-hls:2.14.2'
+    implementation 'com.google.android.exoplayer:exoplayer-dash:2.14.2'
+    implementation 'com.google.android.exoplayer:extension-rtmp:2.14.2'
 }

@@ -14,6 +14,11 @@ public class SelectDialog<T> extends BaseDialog {
     private TvRecyclerView tvRecyclerView;
     private SelectDialogAdapter<T> adapter;
 
+    // 定义归属于 SelectDialog 的回调接口
+    public interface ItemCallback<T> {
+        void click(T item);
+    }
+
     public SelectDialog(@NonNull Context context) {
         super(context);
         setContentView(R.layout.dialog_select);
@@ -32,7 +37,8 @@ public class SelectDialog<T> extends BaseDialog {
         return setTip(title);
     }
 
-    public SelectDialog<T> setAdapter(SelectDialogAdapter.SelectDialogInterface<T> dialogInterface, SelectDialogAdapter.ItemCallback<T> itemCallback, ArrayList<T> data, int select) {
+    // 参数类型更正为 ItemCallback<T>
+    public SelectDialog<T> setAdapter(SelectDialogAdapter.SelectDialogInterface<T> dialogInterface, ItemCallback<T> itemCallback, ArrayList<T> data, int select) {
         adapter = new SelectDialogAdapter<>(dialogInterface, itemCallback);
         adapter.setData(data, select);
         if (tvRecyclerView != null) {
@@ -42,7 +48,8 @@ public class SelectDialog<T> extends BaseDialog {
         return this;
     }
 
-    public SelectDialog<T> setAdapter(SelectDialogAdapter.SelectDialogInterface<T> dialogInterface, SelectDialogAdapter.ItemCallback<T> itemCallback, List<T> data, int select) {
+    // 参数类型更正为 ItemCallback<T>
+    public SelectDialog<T> setAdapter(SelectDialogAdapter.SelectDialogInterface<T> dialogInterface, ItemCallback<T> itemCallback, List<T> data, int select) {
         ArrayList<T> list = new ArrayList<>();
         if (data != null) {
             list.addAll(data);

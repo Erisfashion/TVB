@@ -1,17 +1,30 @@
 <resources>
 
+    <!-- 主题：彻底移除 ActionBar，适配平板横屏全屏 -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@drawable/app_bg</item>
         <item name="colorAccent">@color/color_FFFFFF</item>
     </style>
 
+    <!-- 弹窗透明背景样式 -->
     <style name="DialogTransparent" parent="Theme.AppCompat.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
+    </style>
+
+    <!-- 补齐直播与 EPG 窗口按钮样式 -->
+    <style name="epg_window_btn">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/color_FFFFFF</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
 </resources>

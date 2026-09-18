@@ -1,7 +1,6 @@
 package com.github.tvbox.osc.ui.dialog;
 
 import android.content.Context;
-import android.view.View;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import com.github.tvbox.osc.R;
@@ -12,18 +11,14 @@ import java.util.List;
 
 public class SelectDialog<T> extends BaseDialog {
     private TextView tvTitle;
-    private TvRecyclerView mGridView;
+    private TvRecyclerView tvRecyclerView;
     private SelectDialogAdapter<T> adapter;
 
     public SelectDialog(@NonNull Context context) {
         super(context);
         setContentView(R.layout.dialog_select);
-        initView();
-    }
-
-    private void initView() {
         tvTitle = findViewById(R.id.tvTitle);
-        mGridView = findViewById(R.id.mGridView);
+        tvRecyclerView = findViewById(R.id.mGridView);
     }
 
     public SelectDialog<T> setTip(String tip) {
@@ -40,9 +35,9 @@ public class SelectDialog<T> extends BaseDialog {
     public SelectDialog<T> setAdapter(SelectDialogAdapter.SelectDialogInterface<T> dialogInterface, SelectDialogAdapter.ItemCallback<T> itemCallback, ArrayList<T> data, int select) {
         adapter = new SelectDialogAdapter<>(dialogInterface, itemCallback);
         adapter.setData(data, select);
-        if (mGridView != null) {
-            mGridView.setAdapter(adapter);
-            mGridView.setSelection(select);
+        if (tvRecyclerView != null) {
+            tvRecyclerView.setAdapter(adapter);
+            tvRecyclerView.setSelection(select);
         }
         return this;
     }
@@ -57,8 +52,8 @@ public class SelectDialog<T> extends BaseDialog {
 
     public SelectDialog<T> setAdapter(SelectDialogAdapter<T> adapter) {
         this.adapter = adapter;
-        if (mGridView != null) {
-            mGridView.setAdapter(adapter);
+        if (tvRecyclerView != null) {
+            tvRecyclerView.setAdapter(adapter);
         }
         return this;
     }

@@ -23,6 +23,8 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import me.jessyan.autosize.AutoSizeConfig;
+import me.jessyan.autosize.unit.Subunits;
 
 public class App extends Application {
     private static App instance;
@@ -43,9 +45,19 @@ public class App extends Application {
         super.onCreate();
         instance = this;
 
-        // 拦截并接管全局崩溃：屏幕报错 + 内部无权限依赖存储
-        initCrashHandler();
+        // 核心配置：开启 Subunits.MM 适配支持，使 1280 基准下的 mm 尺寸按比例映射为正确像素
+        try {
+            AutoSizeConfig.getInstance()
+                    .setCustomFragment(true)
+                    .setDesignWidthInDp(1280)
+                    .setDesignHeightInDp(720)
+                    .getUnitsManager()
+                    .setSupportDP(false)
+                    .setSupportSP(false)
+                    .setSupportSubunits(Subunits.MM);
+        } catch (Throwable ignored) {}
 
+        initCrashHandler();
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
 
         try {
@@ -69,44 +81,35 @@ public class App extends Application {
     }
 
     private void initCrashHandler() {
-        final Thread.UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable ex) {
                 String errorInfo = Log.getStackTraceString(ex);
                 Log.e("TVBoxCrash", errorInfo);
 
-                // 1. 无条件写入私有内部存储（不需要任何读写权限，100% 成功）
-                try {
-                    File internalFile = new File(getFilesDir(), "tvbox_crash.log");
-                    FileOutputStream fos = new FileOutputStream(internalFile);
-                    fos.write(errorInfo.getBytes("UTF-8"));
-                    fos.close();
-                } catch (Throwable ignored) {}
+                String[] paths = new String[]{
+                        "/sdcard/tvbox_crash.log",
+                        "/mnt/sdcard/tvbox_crash.log",
+                        Environment.getExternalStorageDirectory().getAbsolutePath() + "/tvbox_crash.log",
+                        getFilesDir().getAbsolutePath() + "/tvbox_crash.log"
+                };
 
-                // 2. 尝试写入 SDCard 方便用户导出
-                try {
-                    File extDir = Environment.getExternalStorageDirectory();
-                    if (extDir != null && extDir.exists()) {
-                        File sdFile = new File(extDir, "tvbox_crash.log");
-                        FileOutputStream fos = new FileOutputStream(sdFile);
+                for (String path : paths) {
+                    try {
+                        File file = new File(path);
+                        FileOutputStream fos = new FileOutputStream(file);
                         fos.write(errorInfo.getBytes("UTF-8"));
+                        fos.flush();
                         fos.close();
-                    }
-                } catch (Throwable ignored) {}
+                    } catch (Throwable ignored) {}
+                }
 
-                // 3. 屏幕全屏展示红字崩溃信息
                 try {
                     Intent intent = new Intent(App.this, CrashActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     intent.putExtra("error", errorInfo);
                     startActivity(intent);
-                } catch (Throwable t) {
-                    if (defaultHandler != null) {
-                        defaultHandler.uncaughtException(thread, ex);
-                        return;
-                    }
-                }
+                } catch (Throwable ignored) {}
 
                 android.os.Process.killProcess(android.os.Process.myPid());
                 System.exit(10);

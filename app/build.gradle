@@ -57,11 +57,9 @@ android {
         pickFirst 'lib/x86/libijkffmpeg.so'
         pickFirst 'lib/x86/libijkplayer.so'
         pickFirst 'lib/x86/libijksdl.so'
-        pickFirst 'lib/x86/libquickjs-android.so'
         pickFirst 'lib/armeabi-v7a/libijkffmpeg.so'
         pickFirst 'lib/armeabi-v7a/libijkplayer.so'
         pickFirst 'lib/armeabi-v7a/libijksdl.so'
-        pickFirst 'lib/armeabi-v7a/libquickjs-android.so'
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE'
@@ -97,12 +95,15 @@ dependencies {
     implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
     implementation project(':player')
 
-    // 解决 Movie、AbsSortXml 缺失 XStream 注解报错（排除自带 xmlpull 规避 DEX 重复类冲突）
+    // 解决 SubtitleLoader 缺失 ReaderInputStream
+    implementation 'commons-io:commons-io:2.11.0'
+
+    // XStream 序列化支持
     implementation('com.thoughtworks.xstream:xstream:1.4.18') {
         exclude group: 'xmlpull', module: 'xmlpull'
     }
 
-    // ExoPlayer 核心与扩展组件
+    // ExoPlayer 核心与扩展
     implementation 'com.google.android.exoplayer:exoplayer:2.14.2'
     implementation 'com.google.android.exoplayer:extension-okhttp:2.14.2'
     implementation 'com.google.android.exoplayer:extension-rtmp:2.14.2'

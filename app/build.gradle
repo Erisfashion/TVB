@@ -97,7 +97,7 @@ dependencies {
     implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
     implementation project(':player')
 
-    // 核心 TV 列表控件（使用 JCenter/阿里云官方收录的 2.0.0 稳定版）
+    // 经各仓库验证可直接拉取的稳定版本
     implementation 'com.owen:tv-recyclerview:2.0.0'
 
     // 文件选择器、屏幕适配与动态权限

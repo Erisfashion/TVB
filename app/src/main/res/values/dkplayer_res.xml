@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 全局控制层容器 ID -->
+    <item name="center_container" type="id" />
+
+    <!-- 播放器尺寸兼容定义 -->
+    <dimen name="dkplayer_controller_height">56dp</dimen>
+    <dimen name="dkplayer_controller_icon_padding">10dp</dimen>
+    <dimen name="dkplayer_controller_time_text_size">12sp</dimen>
+</resources>

@@ -2,6 +2,7 @@ package com.github.tvbox.osc.base;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Environment;
 import android.util.Log;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -14,8 +15,7 @@ import com.lzy.okgo.OkGo;
 import com.orhanobut.hawk.Hawk;
 import com.p2p.P2PClass;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.FileOutputStream;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -43,16 +43,15 @@ public class App extends Application {
         super.onCreate();
         instance = this;
 
-        // 关键配置：解决 Android 4.2 解析 VectorDrawable 导致的 InflateException 闪退
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-
-        // 崩溃自捕获：将异常写入存储卡根目录或应用私有目录，方便随时取样
+        // 拦截并接管全局崩溃：屏幕报错 + 内部无权限依赖存储
         initCrashHandler();
+
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
 
         try {
             Hawk.init(this).build();
         } catch (Throwable ignored) {}
-        
+
         initLegacySSL();
         initDefaultConfigs();
 
@@ -70,21 +69,47 @@ public class App extends Application {
     }
 
     private void initCrashHandler() {
+        final Thread.UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable ex) {
-                Log.e("TVBoxCrash", "FATAL EXCEPTION", ex);
+                String errorInfo = Log.getStackTraceString(ex);
+                Log.e("TVBoxCrash", errorInfo);
+
+                // 1. 无条件写入私有内部存储（不需要任何读写权限，100% 成功）
                 try {
-                    File crashFile = new File(getExternalFilesDir(null), "tvbox_crash.log");
-                    if (!crashFile.exists()) {
-                        crashFile = new File(Environment.getExternalStorageDirectory(), "tvbox_crash.log");
-                    }
-                    PrintWriter pw = new PrintWriter(new FileWriter(crashFile, false));
-                    ex.printStackTrace(pw);
-                    pw.flush();
-                    pw.close();
+                    File internalFile = new File(getFilesDir(), "tvbox_crash.log");
+                    FileOutputStream fos = new FileOutputStream(internalFile);
+                    fos.write(errorInfo.getBytes("UTF-8"));
+                    fos.close();
                 } catch (Throwable ignored) {}
-                System.exit(1);
+
+                // 2. 尝试写入 SDCard 方便用户导出
+                try {
+                    File extDir = Environment.getExternalStorageDirectory();
+                    if (extDir != null && extDir.exists()) {
+                        File sdFile = new File(extDir, "tvbox_crash.log");
+                        FileOutputStream fos = new FileOutputStream(sdFile);
+                        fos.write(errorInfo.getBytes("UTF-8"));
+                        fos.close();
+                    }
+                } catch (Throwable ignored) {}
+
+                // 3. 屏幕全屏展示红字崩溃信息
+                try {
+                    Intent intent = new Intent(App.this, CrashActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.putExtra("error", errorInfo);
+                    startActivity(intent);
+                } catch (Throwable t) {
+                    if (defaultHandler != null) {
+                        defaultHandler.uncaughtException(thread, ex);
+                        return;
+                    }
+                }
+
+                android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(10);
             }
         });
     }
@@ -112,7 +137,7 @@ public class App extends Application {
                 }
                 p2p = new P2PClass(path);
             } catch (Throwable t) {
-                p2p = new P2PClass("");
+                p2p = null;
             }
         }
         return p2p;

@@ -4,7 +4,7 @@
     package="com.github.tvbox.osc">
 
     <uses-sdk
-        tools:overrideLibrary="androidx.multidex,androidx.core,androidx.appcompat,androidx.fragment,androidx.activity,androidx.recyclerview,androidx.constraintlayout,androidx.room,androidx.lifecycle,androidx.lifecycle.runtime,androidx.lifecycle.process,androidx.lifecycle.viewmodel,org.xwalk.core,tv.danmaku.ijk.media.player,xyz.doikki.videoplayer,com.google.android.exoplayer2,com.chad.library,com.kingja.loadsir,com.lzy.net,org.greenrobot.eventbus,com.whl.quickjs.android,com.whl.quickjs.wrapper,com.owen.tvrecyclerview" />
+        tools:overrideLibrary="androidx.multidex,androidx.core,androidx.appcompat,androidx.fragment,androidx.activity,androidx.recyclerview,androidx.constraintlayout,androidx.room,androidx.lifecycle,androidx.lifecycle.runtime,androidx.lifecycle.process,androidx.lifecycle.viewmodel,org.xwalk.core,tv.danmaku.ijk.media.player,xyz.doikki.videoplayer,com.google.android.exoplayer2,com.chad.library,com.kingja.loadsir,com.lzy.net,org.greenrobot.eventbus,com.owen.tvrecyclerview" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

@@ -97,9 +97,9 @@ dependencies {
     implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
     implementation project(':player')
 
-    // QuickJS JitPack 正式坐标（whl0034 原版多模块）
-    implementation 'com.github.whl0034.quickjs-android:wrapper:0.7.8'
-    implementation 'com.github.whl0034.quickjs-android:android:0.7.8'
+    // QuickJS JitPack 真实多模块坐标
+    implementation 'com.github.whataa.quickjs-android:wrapper:0.7.8'
+    implementation 'com.github.whataa.quickjs-android:android:0.7.8'
 
     // ExoPlayer 核心与扩展组件
     implementation 'com.google.android.exoplayer:exoplayer:2.14.2'

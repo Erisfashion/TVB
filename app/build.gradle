@@ -97,14 +97,15 @@ dependencies {
     implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
     implementation project(':player')
 
-    // 解决 PlayActivity 与 PlayFragment 缺失 ChooserDialog 报错
-    implementation 'com.obsez.android.lib.filechooser:filechooser:1.2.0'
+    // 解决 setSelectedPosition(int) 缺失，升级为具备该方法的 2.2.1 稳定版本
+    implementation 'com.owen:tv-recyclerview:2.2.1'
 
-    // 屏幕自适应与动态权限
+    // 文件选择器、屏幕适配与动态权限
+    implementation 'com.obsez.android.lib.filechooser:filechooser:1.2.0'
     implementation 'me.jessyan:autosize:1.2.1'
     implementation 'com.github.getActivity:XXPermissions:11.6'
 
-    // IO 流处理与 XStream 序列化
+    // IO 处理与 XStream 序列化
     implementation 'commons-io:commons-io:2.11.0'
     implementation('com.thoughtworks.xstream:xstream:1.4.18') {
         exclude group: 'xmlpull', module: 'xmlpull'
@@ -124,8 +125,7 @@ dependencies {
         exclude group: 'xyz.doikki.android.dkplayer', module: 'dkplayer-java'
     }
 
-    // 列表与适配器组件
-    implementation 'com.owen:tv-recyclerview:2.0.0'
+    // BRVAH 列表适配器基类
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.50'
 
     // AndroidX 核心组件

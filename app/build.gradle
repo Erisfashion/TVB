@@ -97,8 +97,8 @@ dependencies {
     implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
     implementation project(':player')
 
-    // 解决 setSelectedPosition(int) 缺失，升级为具备该方法的 2.2.1 稳定版本
-    implementation 'com.owen:tv-recyclerview:2.2.1'
+    // 正确的 JitPack 坐标，提供 setSelectedPosition(int) 及全部 tv_* 属性
+    implementation 'com.github.hzowen:TvRecyclerView:v2.2.1'
 
     // 文件选择器、屏幕适配与动态权限
     implementation 'com.obsez.android.lib.filechooser:filechooser:1.2.0'

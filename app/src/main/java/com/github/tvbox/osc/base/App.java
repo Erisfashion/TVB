@@ -18,6 +18,7 @@ import javax.net.ssl.X509TrustManager;
 
 public class App extends Application {
     private static App instance;
+    private String dashData = "";
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -58,6 +59,14 @@ public class App extends Application {
 
     public static Context getContext() {
         return instance == null ? null : instance.getApplicationContext();
+    }
+
+    public String getDashData() {
+        return dashData == null ? "" : dashData;
+    }
+
+    public void setDashData(String dashData) {
+        this.dashData = dashData;
     }
 
     private void initLegacySSL() {

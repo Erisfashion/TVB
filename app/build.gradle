@@ -12,7 +12,9 @@ android {
         versionName "1.0.0-x86"
 
         multiDexEnabled true
-        vectorDrawables.useSupportLibrary = true
+
+        // 移除 vectorDrawables.useSupportLibrary = true，为 Android 4.2 自动生成降级兼容 PNG
+        vectorDrawables.generatedDensities = ['hdpi', 'xhdpi']
 
         ndk {
             abiFilters "x86", "armeabi-v7a"
@@ -97,7 +99,7 @@ dependencies {
     implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
     implementation project(':player')
 
-    // 关键补齐：解决 x86 设备缺少 ijkffmpeg/ijkplayer 动态库引发的白屏闪退
+    // x86 核心播放库
     implementation 'tv.danmaku.ijk.media:ijkplayer-x86:0.8.8'
 
     // 列表控件与适配器

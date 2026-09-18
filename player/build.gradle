@@ -31,6 +31,10 @@ android {
     }
 }
 
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:-unchecked" << "-Xlint:-deprecation"
+}
+
 configurations.all {
     resolutionStrategy {
         force 'com.squareup.okhttp3:okhttp:3.12.13'
@@ -45,18 +49,16 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'androidx.core:core:1.5.0'
 
-    // OkHttp 核心与扩展库
+    // OkHttp 核心与扩展组件（供 ExoMediaPlayer 与数据源使用）
     implementation 'com.squareup.okhttp3:okhttp:3.12.13'
     implementation 'com.squareup.okio:okio:1.17.5'
+
+    // ExoPlayer 完整核心与扩展库
+    implementation 'com.google.android.exoplayer:exoplayer:2.14.2'
     implementation 'com.google.android.exoplayer:extension-okhttp:2.14.2'
     implementation 'com.google.android.exoplayer:extension-rtmp:2.14.2'
 
-    // ExoPlayer 核心组件
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.14.2'
-    implementation 'com.google.android.exoplayer:exoplayer-hls:2.14.2'
-    implementation 'com.google.android.exoplayer:exoplayer-dash:2.14.2'
-
-    // ijkplayer x86/armv7a 原生解码库 (排除自带的 Java 代码以使用本地定制代码)
+    // ijkplayer x86/armv7a 原生解码库 (排除 Java 层重复类)
     implementation('tv.danmaku.ijk.media:ijkplayer-x86:0.8.8') {
         exclude group: 'tv.danmaku.ijk.media', module: 'ijkplayer-java'
     }

@@ -5,7 +5,6 @@ import android.content.Context;
 import androidx.multidex.MultiDex;
 import com.github.tvbox.osc.callback.EmptyCallback;
 import com.github.tvbox.osc.callback.LoadingCallback;
-import com.github.tvbox.osc.server.ControlManager;
 import com.kingja.loadsir.core.LoadSir;
 import com.lzy.net.OkGo;
 import com.orhanobut.hawk.Hawk;
@@ -30,21 +29,22 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        Hawk.init(this).build();
+        try {
+            Hawk.init(this).build();
+        } catch (Throwable ignored) {}
         initLegacySSL();
         initDefaultConfigs();
 
-        // 初始化状态页加载组件
-        LoadSir.beginBuilder()
-                .addCallback(new EmptyCallback())
-                .addCallback(new LoadingCallback())
-                .setDefaultCallback(LoadingCallback.class)
-                .commit();
+        try {
+            LoadSir.beginBuilder()
+                    .addCallback(new EmptyCallback())
+                    .addCallback(new LoadingCallback())
+                    .setDefaultCallback(LoadingCallback.class)
+                    .commit();
+        } catch (Throwable ignored) {}
 
-        // 初始化网络与控制服务
         try {
             OkGo.getInstance().init(this);
-            ControlManager.init(this);
         } catch (Throwable ignored) {}
     }
 
@@ -81,21 +81,20 @@ public class App extends Application {
             sslContext.init(null, trustAllCerts, new SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
             HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Throwable ignored) {}
     }
 
     private void initDefaultConfigs() {
-        // 使用字符串字面量保障向后兼容，规避部分分支 HawkConfig 字段变动
-        if (!Hawk.contains("play_type")) {
-            Hawk.put("play_type", 1);
-        }
-        if (!Hawk.contains("ijk_codec")) {
-            Hawk.put("ijk_codec", "软解码");
-        }
-        if (!Hawk.contains("home_rec")) {
-            Hawk.put("home_rec", 1);
-        }
+        try {
+            if (!Hawk.contains("play_type")) {
+                Hawk.put("play_type", 1);
+            }
+            if (!Hawk.contains("ijk_codec")) {
+                Hawk.put("ijk_codec", "软解码");
+            }
+            if (!Hawk.contains("home_rec")) {
+                Hawk.put("home_rec", 1);
+            }
+        } catch (Throwable ignored) {}
     }
 }

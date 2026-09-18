@@ -64,16 +64,9 @@ android {
     }
 }
 
-// 彻底跳过 AGP 针对第三方旧库的 AarMetadata 限制检查
 tasks.whenTaskAdded { task ->
     if (task.name.contains("AarMetadata")) {
         task.enabled = false
-    }
-}
-
-repositories {
-    flatDir {
-        dirs 'libs'
     }
 }
 

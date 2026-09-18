@@ -97,8 +97,9 @@ dependencies {
     implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
     implementation project(':player')
 
-    // 关键修正：带 v 标签前缀的正式 JitPack 坐标
-    implementation 'com.github.whataa:quickjs-android:v0.7.8'
+    // QuickJS JitPack 正式坐标（whl0034 原版多模块）
+    implementation 'com.github.whl0034.quickjs-android:wrapper:0.7.8'
+    implementation 'com.github.whl0034.quickjs-android:android:0.7.8'
 
     // ExoPlayer 核心与扩展组件
     implementation 'com.google.android.exoplayer:exoplayer:2.14.2'
@@ -114,10 +115,8 @@ dependencies {
         exclude group: 'xyz.doikki.android.dkplayer', module: 'dkplayer-java'
     }
 
-    // 核心 TV 列表控件
+    // 核心 TV 列表控件与适配器
     implementation 'com.owen:tv-recyclerview:2.0.0'
-
-    // BRVAH 适配器基类库 (锁定 2.9.50)
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.50'
 
     // AndroidX 核心组件

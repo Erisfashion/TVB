@@ -3,11 +3,13 @@ package com.github.tvbox.osc.base;
 import android.app.Application;
 import android.content.Context;
 import androidx.multidex.MultiDex;
+import com.github.tvbox.osc.bean.VodInfo;
 import com.github.tvbox.osc.callback.EmptyCallback;
 import com.github.tvbox.osc.callback.LoadingCallback;
 import com.kingja.loadsir.core.LoadSir;
 import com.lzy.okgo.OkGo;
 import com.orhanobut.hawk.Hawk;
+import com.p2p.P2PClass;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -19,6 +21,11 @@ import javax.net.ssl.X509TrustManager;
 public class App extends Application {
     private static App instance;
     private String dashData = "";
+    private VodInfo vodInfo;
+
+    // 解决 Jianpian.java 访问的静态属性与对象
+    public static String burl = "";
+    private static P2PClass p2p;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -59,6 +66,25 @@ public class App extends Application {
 
     public static Context getContext() {
         return instance == null ? null : instance.getApplicationContext();
+    }
+
+    public static P2PClass getp2p() {
+        if (p2p == null) {
+            p2p = new P2PClass();
+        }
+        return p2p;
+    }
+
+    public static void setp2p(P2PClass p) {
+        p2p = p;
+    }
+
+    public VodInfo getVodInfo() {
+        return vodInfo;
+    }
+
+    public void setVodInfo(VodInfo vodInfo) {
+        this.vodInfo = vodInfo;
     }
 
     public String getDashData() {

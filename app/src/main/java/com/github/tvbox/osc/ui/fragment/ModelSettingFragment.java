@@ -118,17 +118,33 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvParseWebView.setText(Hawk.get(HawkConfig.PARSE_WEBVIEW, true) ? "系统自带" : "XWalkView");
         tvApi.setText(Hawk.get(HawkConfig.API_URL, ""));
 
-        tvDns.setText(OkGoHelper.dnsHttpsList.get(Hawk.get(HawkConfig.DOH_URL, 0)));
+        // 1. 防御 OkGoHelper.dnsHttpsList 为空导致的 IndexOutOfBoundsException: Invalid index 0, size is 0
+        if (OkGoHelper.dnsHttpsList != null && !OkGoHelper.dnsHttpsList.isEmpty()) {
+            int dohIdx = Hawk.get(HawkConfig.DOH_URL, 0);
+            if (dohIdx >= 0 && dohIdx < OkGoHelper.dnsHttpsList.size()) {
+                tvDns.setText(OkGoHelper.dnsHttpsList.get(dohIdx));
+            } else {
+                tvDns.setText(OkGoHelper.dnsHttpsList.get(0));
+            }
+        } else {
+            tvDns.setText("默认DNS");
+        }
+
         tvHomeRec.setText(getHomeRecName(Hawk.get(HawkConfig.HOME_REC, 0)));
         tvHistoryNum.setText(HistoryHelper.getHistoryNumName(Hawk.get(HawkConfig.HISTORY_NUM, 0)));
         tvSearchView.setText(getSearchView(Hawk.get(HawkConfig.SEARCH_VIEW, 0)));
-        tvHomeApi.setText(ApiConfig.get().getHomeSourceBean().getName());
+
+        // 2. 防御未配置主数据源时的 NullPointerException
+        SourceBean homeSourceBean = ApiConfig.get().getHomeSourceBean();
+        tvHomeApi.setText(homeSourceBean != null ? homeSourceBean.getName() : "未配置");
+
         tvScale.setText(PlayerHelper.getScaleName(Hawk.get(HawkConfig.PLAY_SCALE, 0)));
         tvPlay.setText(PlayerHelper.getPlayerName(Hawk.get(HawkConfig.PLAY_TYPE, 0)));
         tvRender.setText(PlayerHelper.getRenderName(Hawk.get(HawkConfig.PLAY_RENDER, 0)));
         tvIjkCachePlay.setText(Hawk.get(HawkConfig.IJK_CACHE_PLAY, false) ? "开启" : "关闭");
         tvHomeDefaultShow = findViewById(R.id.tvHomeText);
         tvHomeDefaultShow.setText(Hawk.get(HawkConfig.DEFAULT_LOAD_LIVE, false) ? "直播" : "点播");
+
         findViewById(R.id.llDebug).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -137,6 +153,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 tvDebugOpen.setText(Hawk.get(HawkConfig.DEBUG_OPEN, false) ? "已打开" : "已关闭");
             }
         });
+
         findViewById(R.id.llParseWebVew).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -156,6 +173,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 }
             }
         });
+
         findViewById(R.id.llBackup).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -164,6 +182,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 dialog.show();
             }
         });
+
         findViewById(R.id.llAbout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -172,11 +191,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 dialog.show();
             }
         });
+
         findViewById(R.id.llWp).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
-                if (!ApiConfig.get().wallpaper.isEmpty())
+                if (ApiConfig.get().wallpaper != null && !ApiConfig.get().wallpaper.isEmpty()) {
                     OkGo.<File>get(ApiConfig.get().wallpaper).execute(new FileCallback(requireActivity().getFilesDir().getAbsolutePath(), "wp") {
                         @Override
                         public void onSuccess(Response<File> response) {
@@ -193,8 +213,10 @@ public class ModelSettingFragment extends BaseLazyFragment {
                             super.downloadProgress(progress);
                         }
                     });
+                }
             }
         });
+
         findViewById(R.id.llWpRecovery).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -205,23 +227,28 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 ((BaseActivity) requireActivity()).changeWallpaper(true);
             }
         });
+
         findViewById(R.id.llHomeApi).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
                 List<SourceBean> sites = ApiConfig.get().getSwitchSourceBeanList();
-                if (sites.size() > 0) {
+                if (sites != null && !sites.isEmpty()) {
                     SelectDialog<SourceBean> dialog = new SelectDialog<>(mActivity);
                     dialog.setTip("请选择首页数据源");
-                    int select = sites.indexOf(ApiConfig.get().getHomeSourceBean());
-                    if (select<0) select = 0;
+                    SourceBean homeBean = ApiConfig.get().getHomeSourceBean();
+                    int select = (homeBean != null) ? sites.indexOf(homeBean) : 0;
+                    if (select < 0) select = 0;
                     dialog.setAdapter(new SelectDialogAdapter.SelectDialogInterface<SourceBean>() {
                         @Override
                         public void click(SourceBean value, int pos) {
                             ApiConfig.get().setSourceBean(value);
-                            tvHomeApi.setText(ApiConfig.get().getHomeSourceBean().getName());
+                            SourceBean newHome = ApiConfig.get().getHomeSourceBean();
+                            if (newHome != null) {
+                                tvHomeApi.setText(newHome.getName());
+                            }
 
-                            Intent intent =new Intent(mContext, HomeActivity.class);
+                            Intent intent = new Intent(mContext, HomeActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             Bundle bundle = new Bundle();
                             bundle.putBoolean("useCache", true);
@@ -231,7 +258,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
 
                         @Override
                         public String getDisplay(SourceBean val) {
-                            return val.getName();
+                            return val != null ? val.getName() : "";
                         }
                     }, new DiffUtil.ItemCallback<SourceBean>() {
                         @Override
@@ -241,18 +268,28 @@ public class ModelSettingFragment extends BaseLazyFragment {
 
                         @Override
                         public boolean areContentsTheSame(@NonNull @NotNull SourceBean oldItem, @NonNull @NotNull SourceBean newItem) {
-                            return oldItem.getKey().equals(newItem.getKey());
+                            return oldItem != null && newItem != null && oldItem.getKey() != null && oldItem.getKey().equals(newItem.getKey());
                         }
                     }, sites, select);
                     dialog.show();
+                } else {
+                    Toast.makeText(mContext, "暂无可切换的数据源，请先配置接口", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
         findViewById(R.id.llDns).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
+                if (OkGoHelper.dnsHttpsList == null || OkGoHelper.dnsHttpsList.isEmpty()) {
+                    Toast.makeText(mContext, "暂无可用DNS配置", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 int dohUrl = Hawk.get(HawkConfig.DOH_URL, 0);
+                if (dohUrl < 0 || dohUrl >= OkGoHelper.dnsHttpsList.size()) {
+                    dohUrl = 0;
+                }
 
                 SelectDialog<String> dialog = new SelectDialog<>(mActivity);
                 dialog.setTip("请选择安全DNS");
@@ -261,8 +298,6 @@ public class ModelSettingFragment extends BaseLazyFragment {
                     public void click(String value, int pos) {
                         tvDns.setText(OkGoHelper.dnsHttpsList.get(pos));
                         Hawk.put(HawkConfig.DOH_URL, pos);
-//                        String url = OkGoHelper.getDohUrl(pos);
-//                        OkGoHelper.dnsOverHttps.setUrl(url.isEmpty() ? null : HttpUrl.get(url));
                         IjkMediaPlayer.toggleDotPort(pos > 0);
                     }
 
@@ -284,6 +319,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 dialog.show();
             }
         });
+
         findViewById(R.id.llApi).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -312,8 +348,10 @@ public class ModelSettingFragment extends BaseLazyFragment {
             @Override
             public void onClick(View v) {
                 ArrayList<String> history = Hawk.get(HawkConfig.API_HISTORY, new ArrayList<String>());
-                if (history.isEmpty())
+                if (history == null || history.isEmpty()) {
+                    Toast.makeText(mContext, "暂无历史配置", Toast.LENGTH_SHORT).show();
                     return;
+                }
                 String current = Hawk.get(HawkConfig.API_URL, "");
                 int idx = 0;
                 if (history.contains(current))
@@ -339,13 +377,14 @@ public class ModelSettingFragment extends BaseLazyFragment {
             }
         });
 
-
         findViewById(R.id.llMediaCodec).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 List<IJKCode> ijkCodes = ApiConfig.get().getIjkCodes();
-                if (ijkCodes == null || ijkCodes.size() == 0)
+                if (ijkCodes == null || ijkCodes.isEmpty()) {
+                    Toast.makeText(mContext, "暂无可用解码配置", Toast.LENGTH_SHORT).show();
                     return;
+                }
                 FastClickCheckUtil.check(v);
 
                 int defaultPos = 0;
@@ -384,6 +423,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 dialog.show();
             }
         });
+
         findViewById(R.id.llScale).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -423,6 +463,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 dialog.show();
             }
         });
+
         findViewById(R.id.llPlay).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -430,8 +471,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 int playerType = Hawk.get(HawkConfig.PLAY_TYPE, 0);
                 int defaultPos = 0;
                 ArrayList<Integer> players = PlayerHelper.getExistPlayerTypes();
+                if (players == null || players.isEmpty()) {
+                    Toast.makeText(mContext, "暂无可用播放器配置", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 ArrayList<Integer> renders = new ArrayList<>();
-                for(int p = 0; p<players.size(); p++) {
+                for (int p = 0; p < players.size(); p++) {
                     renders.add(p);
                     if (players.get(p) == playerType) {
                         defaultPos = p;
@@ -450,8 +495,8 @@ public class ModelSettingFragment extends BaseLazyFragment {
 
                     @Override
                     public String getDisplay(Integer val) {
-                        Integer playerType = players.get(val);
-                        return PlayerHelper.getPlayerName(playerType);
+                        Integer pType = players.get(val);
+                        return PlayerHelper.getPlayerName(pType);
                     }
                 }, new DiffUtil.ItemCallback<Integer>() {
                     @Override
@@ -467,6 +512,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 dialog.show();
             }
         });
+
         findViewById(R.id.llRender).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -503,6 +549,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 dialog.show();
             }
         });
+
         findViewById(R.id.llHomeRec).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -539,6 +586,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 dialog.show();
             }
         });
+
         findViewById(R.id.llSearchView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -574,6 +622,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 dialog.show();
             }
         });
+
         SettingActivity.callback = new SettingActivity.DevModeCallback() {
             @Override
             public void onChange() {
@@ -589,6 +638,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 tvShowPreviewText.setText(Hawk.get(HawkConfig.SHOW_PREVIEW, true) ? "开启" : "关闭");
             }
         });
+
         findViewById(R.id.llHistoryNum).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -625,6 +675,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 dialog.show();
             }
         });
+
         findViewById(R.id.showFastSearch).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -633,15 +684,17 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 tvFastSearchText.setText(Hawk.get(HawkConfig.FAST_SEARCH_MODE, false) ? "开启" : "关闭");
             }
         });
+
         findViewById(R.id.m3u8Ad).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
-                boolean is_purify=Hawk.get(HawkConfig.M3U8_PURIFY, false);
+                boolean is_purify = Hawk.get(HawkConfig.M3U8_PURIFY, false);
                 Hawk.put(HawkConfig.M3U8_PURIFY, !is_purify);
                 tvm3u8AdText.setText(!is_purify ? "开启" : "关闭");
             }
         });
+
         findViewById(R.id.llHomeRecStyle).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -672,7 +725,6 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 view.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -700,15 +752,11 @@ public class ModelSettingFragment extends BaseLazyFragment {
                                 });
                             }
                         }).start();
-
                     }
                 }, 500);
-
-
             }
         });
 
-        //下次进入
         findViewById(R.id.tvHomeLive).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -732,13 +780,13 @@ public class ModelSettingFragment extends BaseLazyFragment {
         FastClickCheckUtil.check(v);
         String cachePath = FileUtils.getCachePath();
         File cacheDir = new File(cachePath);
-        String cspCachePath = FileUtils.getFilePath()+"/csp/";
+        String cspCachePath = FileUtils.getFilePath() + "/csp/";
         File cspCacheDir = new File(cspCachePath);
         if (!cacheDir.exists() && !cspCacheDir.exists()) return;
         new Thread(() -> {
             try {
-                if(cacheDir.exists())FileUtils.cleanDirectory(cacheDir);
-                if(cspCacheDir.exists()){
+                if (cacheDir.exists()) FileUtils.cleanDirectory(cacheDir);
+                if (cspCacheDir.exists()) {
                     FileUtils.cleanDirectory(cspCacheDir);
                 }
             } catch (Exception e) {
@@ -747,7 +795,6 @@ public class ModelSettingFragment extends BaseLazyFragment {
         }).start();
         Toast.makeText(getContext(), "播放&JAR缓存已清空", Toast.LENGTH_LONG).show();
     }
-
 
     public static SearchRemoteTvDialog loadingSearchRemoteTvDialog;
     public static List<String> remoteTvHostList;

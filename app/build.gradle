@@ -29,7 +29,6 @@ android {
         main {
             java.srcDirs = ['src/main/java', 'src/normal/java']
             res.srcDirs = ['src/main/res']
-            jniLibs.srcDirs = ['src/main/jniLibs']
             assets.srcDirs = ['src/main/assets']
         }
     }
@@ -64,9 +63,9 @@ android {
     }
 }
 
-tasks.whenTaskAdded { task ->
-    if (task.name.contains("AarMetadata")) {
-        task.enabled = false
+repositories {
+    flatDir {
+        dirs 'libs'
     }
 }
 

@@ -328,11 +328,11 @@ public class RemoteServer extends NanoHTTPD {
     }
 
     @SuppressLint("DefaultLocale")
-    public String getLocalIPAddress(Context context) {
+    public static String getLocalIPAddress(android.content.Context context) {
         try {
-            Context ctx = (context != null) ? context.getApplicationContext() : com.github.tvbox.osc.base.App.getInstance().getApplicationContext();
+            android.content.Context ctx = (context != null) ? context.getApplicationContext() : com.github.tvbox.osc.base.App.getInstance().getApplicationContext();
             if (ctx != null) {
-                android.net.wifi.WifiManager wifiManager = (android.net.wifi.WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+                android.net.wifi.WifiManager wifiManager = (android.net.wifi.WifiManager) ctx.getSystemService(android.content.Context.WIFI_SERVICE);
                 if (wifiManager != null) {
                     android.net.wifi.WifiInfo wifiInfo = wifiManager.getConnectionInfo();
                     if (wifiInfo != null) {

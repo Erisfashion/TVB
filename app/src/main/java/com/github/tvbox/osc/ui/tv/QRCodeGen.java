@@ -1,47 +1,43 @@
 package com.github.tvbox.osc.ui.tv;
 
 import android.graphics.Bitmap;
-
+import android.graphics.Color;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
-import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import java.util.Hashtable;
 
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * @author pj567
- * @date :2021/1/5
- * @description:
- */
 public class QRCodeGen {
-    public static Bitmap generateBitmap(String content, int width, int height, int padding) {
-        QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        Map<EncodeHintType, String> hints = new HashMap<>();
-        hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
-        hints.put(EncodeHintType.MARGIN, padding + "");
+
+    public static Bitmap generateBitmap(String content, int width, int height) {
         try {
-            BitMatrix encode = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, width, height, hints);
+            if (content == null || content.isEmpty()) {
+                return null;
+            }
+            Hashtable<EncodeHintType, Object> hints = new Hashtable<>();
+            hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
+            hints.put(EncodeHintType.MARGIN, 1);
+            BitMatrix matrix = new QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, width, height, hints);
             int[] pixels = new int[width * height];
-            for (int i = 0; i < height; i++) {
-                for (int j = 0; j < width; j++) {
-                    if (encode.get(j, i)) {
-                        pixels[i * width + j] = 0x00000000;
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    if (matrix.get(x, y)) {
+                        pixels[y * width + x] = Color.BLACK;
                     } else {
-                        pixels[i * width + j] = 0xffffffff;
+                        pixels[y * width + x] = Color.WHITE;
                     }
                 }
             }
-            return Bitmap.createBitmap(pixels, 0, width, width, height, Bitmap.Config.RGB_565);
-        } catch (WriterException e) {
-            e.printStackTrace();
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+            return bitmap;
+        } catch (Throwable ignored) {
+            return null;
         }
-        return null;
     }
 
-    public static Bitmap generateBitmap(String content, int width, int height) {
-        return generateBitmap(content, width, height, 0);
+    public static Bitmap createQRCode(String content) {
+        return generateBitmap(content, 300, 300);
     }
 }

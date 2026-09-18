@@ -3,22 +3,69 @@ package com.whl.quickjs.wrapper;
 public class QuickJSContext {
 
     public interface DefaultModuleLoader {
-        String getModuleStringCode(String moduleName);
+        default String getModuleStringCode(String moduleName) {
+            return null;
+        }
+
+        default String getModuleStringCode(String moduleBaseName, String moduleName) {
+            return null;
+        }
     }
 
     public interface BytecodeModuleLoader extends DefaultModuleLoader {
         byte[] getModuleBytecode(String moduleName);
+
+        default byte[] getModuleBytecode(String moduleBaseName, String moduleName) {
+            return null;
+        }
 
         @Override
         default String getModuleStringCode(String moduleName) {
             return null;
         }
 
+        @Override
+        default String getModuleStringCode(String moduleBaseName, String moduleName) {
+            return null;
+        }
+
+        default String convertModuleName(String moduleBaseName, String moduleName) {
+            return moduleName;
+        }
+
+        default String convertModuleName(String moduleName) {
+            return moduleName;
+        }
+
+        default String normalizeModuleName(String moduleBaseName, String moduleName) {
+            return moduleName;
+        }
+
+        default String normalizeModuleName(String moduleName) {
+            return moduleName;
+        }
+
         default String getModuleCode(String moduleName) {
             return null;
         }
 
+        default String getModuleCode(String moduleBaseName, String moduleName) {
+            return null;
+        }
+
+        default String getModulePath(String moduleName) {
+            return null;
+        }
+
+        default String getModulePath(String moduleBaseName, String moduleName) {
+            return null;
+        }
+
         default boolean moduleFileExists(String moduleName) {
+            return false;
+        }
+
+        default boolean moduleFileExists(String moduleBaseName, String moduleName) {
             return false;
         }
     }
@@ -58,6 +105,22 @@ public class QuickJSContext {
 
     public byte[] compileModule(String script) {
         return new byte[0];
+    }
+
+    public Object execute(byte[] bytecode, String filename) {
+        return null;
+    }
+
+    public Object execute(byte[] bytecode) {
+        return null;
+    }
+
+    public Object execute(String script, String filename) {
+        return null;
+    }
+
+    public Object execute(String script) {
+        return null;
     }
 
     public void setModuleLoader(BytecodeModuleLoader loader) {}
@@ -112,4 +175,5 @@ public class QuickJSContext {
     public Object getUndefined() { return null; }
     public Object getNull() { return null; }
     public String stringify(JSObject jsObject) { return "{}"; }
+    public String stringify(Object obj) { return "{}"; }
 }

@@ -173,9 +173,15 @@ public class ApiDialog extends BaseDialog {
     }
 
     private void refreshQRCode() {
-        String address = ControlManager.get().getAddress(false);
-        tvAddress.setText(String.format("手机/电脑扫描上方二维码或者直接浏览器访问地址\n%s", address));
-        ivQRCode.setImageBitmap(QRCodeGen.generateBitmap(address+"api.html", AutoSizeUtils.mm2px(getContext(), 300), AutoSizeUtils.mm2px(getContext(), 300)));
+        try {
+            String address = ControlManager.get().getAddress(false);
+            if (address != null && !address.isEmpty() && ivQRCode != null) {
+                ivQRCode.setImageBitmap(com.github.tvbox.osc.ui.tv.QRCodeGen.generateBitmap(address, 300, 300));
+                if (tvAddress != null) {
+                    tvAddress.setText(address);
+                }
+            }
+        } catch (Throwable ignored) {}
     }
 
     public void setOnListener(OnListener listener) {

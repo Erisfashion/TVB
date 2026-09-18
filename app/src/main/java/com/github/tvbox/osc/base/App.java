@@ -6,7 +6,7 @@ import androidx.multidex.MultiDex;
 import com.github.tvbox.osc.callback.EmptyCallback;
 import com.github.tvbox.osc.callback.LoadingCallback;
 import com.kingja.loadsir.core.LoadSir;
-import com.lzy.net.OkGo;
+import com.lzy.okgo.OkGo;
 import com.orhanobut.hawk.Hawk;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;

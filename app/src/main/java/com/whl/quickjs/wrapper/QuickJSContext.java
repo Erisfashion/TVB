@@ -3,33 +3,18 @@ package com.whl.quickjs.wrapper;
 public class QuickJSContext {
 
     public interface DefaultModuleLoader {
-        default String getModule(String moduleName) { return null; }
-        default String getModule(String moduleBaseName, String moduleName) { return null; }
         default String getModuleStringCode(String moduleName) { return null; }
         default String getModuleStringCode(String moduleBaseName, String moduleName) { return null; }
+        default String convertModuleName(String moduleBaseName, String moduleName) { return moduleName; }
+        default String convertModuleName(String moduleName) { return moduleName; }
+        default String getModule(String moduleName) { return null; }
+        default String getModule(String moduleBaseName, String moduleName) { return null; }
         default String getModuleCode(String moduleName) { return null; }
         default String getModuleCode(String moduleBaseName, String moduleName) { return null; }
         default String loadModule(String moduleName) { return null; }
         default String loadModule(String moduleBaseName, String moduleName) { return null; }
-        default String getModuleSource(String moduleName) { return null; }
-        default String getModuleSource(String moduleBaseName, String moduleName) { return null; }
-        default String getModuleString(String moduleName) { return null; }
-        default String getModuleString(String moduleBaseName, String moduleName) { return null; }
-        default String findModule(String moduleName) { return null; }
-        default String findModule(String moduleBaseName, String moduleName) { return null; }
-        default String readModule(String moduleName) { return null; }
-        default String readModule(String moduleBaseName, String moduleName) { return null; }
-        default String getScript(String moduleName) { return null; }
-        default String getSource(String moduleName) { return null; }
         default boolean moduleFileExists(String moduleName) { return false; }
         default boolean moduleFileExists(String moduleBaseName, String moduleName) { return false; }
-        default boolean exists(String moduleName) { return false; }
-        default String convertModuleName(String moduleBaseName, String moduleName) { return moduleName; }
-        default String convertModuleName(String moduleName) { return moduleName; }
-        default String normalizeModuleName(String moduleBaseName, String moduleName) { return moduleName; }
-        default String normalizeModuleName(String moduleName) { return moduleName; }
-        default String getModulePath(String moduleName) { return null; }
-        default String getModulePath(String moduleBaseName, String moduleName) { return null; }
     }
 
     public interface BytecodeModuleLoader extends DefaultModuleLoader {
@@ -37,18 +22,19 @@ public class QuickJSContext {
 
         default byte[] getModuleBytecode(String moduleBaseName, String moduleName) { return null; }
         default byte[] getBytecode(String moduleName) { return null; }
-        default byte[] getBytecode(String moduleBaseName, String moduleName) { return null; }
-        default byte[] getModuleByteCode(String moduleName) { return null; }
-        default byte[] getModuleByteCode(String moduleBaseName, String moduleName) { return null; }
 
-        @Override
-        default String getModule(String moduleName) { return null; }
-        @Override
-        default String getModule(String moduleBaseName, String moduleName) { return null; }
         @Override
         default String getModuleStringCode(String moduleName) { return null; }
         @Override
         default String getModuleStringCode(String moduleBaseName, String moduleName) { return null; }
+        @Override
+        default String convertModuleName(String moduleBaseName, String moduleName) { return moduleName; }
+        @Override
+        default String convertModuleName(String moduleName) { return moduleName; }
+        @Override
+        default String getModule(String moduleName) { return null; }
+        @Override
+        default String getModule(String moduleBaseName, String moduleName) { return null; }
         @Override
         default String getModuleCode(String moduleName) { return null; }
         @Override
@@ -58,43 +44,9 @@ public class QuickJSContext {
         @Override
         default String loadModule(String moduleBaseName, String moduleName) { return null; }
         @Override
-        default String getModuleSource(String moduleName) { return null; }
-        @Override
-        default String getModuleSource(String moduleBaseName, String moduleName) { return null; }
-        @Override
-        default String getModuleString(String moduleName) { return null; }
-        @Override
-        default String getModuleString(String moduleBaseName, String moduleName) { return null; }
-        @Override
-        default String findModule(String moduleName) { return null; }
-        @Override
-        default String findModule(String moduleBaseName, String moduleName) { return null; }
-        @Override
-        default String readModule(String moduleName) { return null; }
-        @Override
-        default String readModule(String moduleBaseName, String moduleName) { return null; }
-        @Override
-        default String getScript(String moduleName) { return null; }
-        @Override
-        default String getSource(String moduleName) { return null; }
-        @Override
         default boolean moduleFileExists(String moduleName) { return false; }
         @Override
         default boolean moduleFileExists(String moduleBaseName, String moduleName) { return false; }
-        @Override
-        default boolean exists(String moduleName) { return false; }
-        @Override
-        default String convertModuleName(String moduleBaseName, String moduleName) { return moduleName; }
-        @Override
-        default String convertModuleName(String moduleName) { return moduleName; }
-        @Override
-        default String normalizeModuleName(String moduleBaseName, String moduleName) { return moduleName; }
-        @Override
-        default String normalizeModuleName(String moduleName) { return moduleName; }
-        @Override
-        default String getModulePath(String moduleName) { return null; }
-        @Override
-        default String getModulePath(String moduleBaseName, String moduleName) { return null; }
     }
 
     public interface Console {

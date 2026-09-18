@@ -97,9 +97,9 @@ dependencies {
     implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
     implementation project(':player')
 
-    // QuickJS 官方 Maven Central 正式组件（提供 JSObject, JSFunction, QuickJSLoader 等）
-    implementation 'io.github.whataa:wrapper:0.7.8'
-    implementation 'io.github.whataa:android:0.7.8'
+    // 关键修正：QuickJS Maven Central 官方正规坐标
+    implementation 'com.whl.quickjs:android:0.7.8'
+    implementation 'com.whl.quickjs:wrapper:0.7.8'
 
     // ExoPlayer 核心与扩展组件
     implementation 'com.google.android.exoplayer:exoplayer:2.14.2'
@@ -110,15 +110,13 @@ dependencies {
     implementation 'org.jetbrains:annotations:23.0.0'
     implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
 
-    // DKPlayer UI 控制层组件
+    // DKPlayer UI 组件
     implementation('xyz.doikki.android.dkplayer:dkplayer-ui:3.3.5') {
         exclude group: 'xyz.doikki.android.dkplayer', module: 'dkplayer-java'
     }
 
-    // 核心 TV 列表控件
+    // 列表与适配器
     implementation 'com.owen:tv-recyclerview:2.0.0'
-
-    // BRVAH 适配器基类库 (锁定 2.9.50)
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.50'
 
     // AndroidX 核心组件
@@ -132,11 +130,11 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.3.1'
 
-    // Room 本地数据库
+    // Room 数据库
     implementation 'androidx.room:room-runtime:2.3.0'
     annotationProcessor 'androidx.room:room-compiler:2.3.0'
 
-    // 网络与图像组件（锁定 4.x 兼容版本）
+    // 网络与图像
     implementation 'com.squareup.okhttp3:okhttp:3.12.13'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.13'
     implementation 'com.squareup.okio:okio:1.17.5'

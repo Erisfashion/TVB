@@ -5,6 +5,22 @@ import java.util.Map;
 
 public class JSObject {
     protected final Map<String, Object> properties = new HashMap<>();
+    private QuickJSContext context;
+
+    public JSObject() {}
+
+    public JSObject(QuickJSContext context) {
+        this.context = context;
+    }
+
+    public QuickJSContext getContext() {
+        if (context == null) {
+            context = QuickJSContext.create();
+        }
+        return context;
+    }
+
+    public void bind(Object target) {}
 
     public Object get(String key) {
         return properties.get(key);

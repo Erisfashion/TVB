@@ -97,7 +97,7 @@ dependencies {
     implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
     implementation project(':player')
 
-    // 关键补齐：解决 Android x86 设备缺少 ijk 播放器 .so 文件导致的 UnsatisfiedLinkError 闪退
+    // 关键补齐：解决 x86 设备缺少 ijkffmpeg/ijkplayer 动态库引发的白屏闪退
     implementation 'tv.danmaku.ijk.media:ijkplayer-x86:0.8.8'
 
     // 列表控件与适配器

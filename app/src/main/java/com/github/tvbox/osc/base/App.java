@@ -2,6 +2,9 @@ package com.github.tvbox.osc.base;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Environment;
+import android.util.Log;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.multidex.MultiDex;
 import com.github.tvbox.osc.bean.VodInfo;
 import com.github.tvbox.osc.callback.EmptyCallback;
@@ -10,6 +13,9 @@ import com.kingja.loadsir.core.LoadSir;
 import com.lzy.okgo.OkGo;
 import com.orhanobut.hawk.Hawk;
 import com.p2p.P2PClass;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -23,7 +29,6 @@ public class App extends Application {
     private String dashData = "";
     private VodInfo vodInfo;
 
-    // 供 Jianpian.java 直接调用的成员
     public static String burl = "";
     private static P2PClass p2p;
 
@@ -37,9 +42,17 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+
+        // 关键配置：解决 Android 4.2 解析 VectorDrawable 导致的 InflateException 闪退
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+
+        // 崩溃自捕获：将异常写入存储卡根目录或应用私有目录，方便随时取样
+        initCrashHandler();
+
         try {
             Hawk.init(this).build();
         } catch (Throwable ignored) {}
+        
         initLegacySSL();
         initDefaultConfigs();
 
@@ -54,6 +67,26 @@ public class App extends Application {
         try {
             OkGo.getInstance().init(this);
         } catch (Throwable ignored) {}
+    }
+
+    private void initCrashHandler() {
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable ex) {
+                Log.e("TVBoxCrash", "FATAL EXCEPTION", ex);
+                try {
+                    File crashFile = new File(getExternalFilesDir(null), "tvbox_crash.log");
+                    if (!crashFile.exists()) {
+                        crashFile = new File(Environment.getExternalStorageDirectory(), "tvbox_crash.log");
+                    }
+                    PrintWriter pw = new PrintWriter(new FileWriter(crashFile, false));
+                    ex.printStackTrace(pw);
+                    pw.flush();
+                    pw.close();
+                } catch (Throwable ignored) {}
+                System.exit(1);
+            }
+        });
     }
 
     public static App getInstance() {
@@ -73,7 +106,7 @@ public class App extends Application {
             try {
                 String path = "";
                 if (instance != null) {
-                    java.io.File cache = instance.getExternalCacheDir();
+                    File cache = instance.getExternalCacheDir();
                     if (cache == null) cache = instance.getCacheDir();
                     if (cache != null) path = cache.getAbsolutePath();
                 }

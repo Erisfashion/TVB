@@ -1,0 +1,57 @@
+package com.whl.quickjs.wrapper;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class JSObject {
+    protected final Map<String, Object> properties = new HashMap<>();
+
+    public Object get(String key) {
+        return properties.get(key);
+    }
+
+    public String getString(String key) {
+        Object val = get(key);
+        return val == null ? null : String.valueOf(val);
+    }
+
+    public Integer getInteger(String key) {
+        Object val = get(key);
+        if (val instanceof Number) {
+            return ((Number) val).intValue();
+        }
+        return null;
+    }
+
+    public Boolean getBoolean(String key) {
+        Object val = get(key);
+        return val instanceof Boolean ? (Boolean) val : false;
+    }
+
+    public JSObject getJSObject(String key) {
+        Object val = get(key);
+        return val instanceof JSObject ? (JSObject) val : null;
+    }
+
+    public JSArray getJSArray(String key) {
+        Object val = get(key);
+        return val instanceof JSArray ? (JSArray) val : null;
+    }
+
+    public JSFunction getJSFunction(String key) {
+        Object val = get(key);
+        return val instanceof JSFunction ? (JSFunction) val : null;
+    }
+
+    public void set(String key, Object val) {
+        properties.put(key, val);
+    }
+
+    public void set(String key, JSCallFunction val) {
+        properties.put(key, val);
+    }
+
+    public void put(String key, Object val) {
+        properties.put(key, val);
+    }
+}

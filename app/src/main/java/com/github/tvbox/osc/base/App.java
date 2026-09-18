@@ -3,7 +3,11 @@ package com.github.tvbox.osc.base;
 import android.app.Application;
 import android.content.Context;
 import androidx.multidex.MultiDex;
-import com.github.tvbox.osc.util.HawkConfig;
+import com.github.tvbox.osc.callback.EmptyCallback;
+import com.github.tvbox.osc.callback.LoadingCallback;
+import com.github.tvbox.osc.server.ControlManager;
+import com.kingja.loadsir.core.LoadSir;
+import com.lzy.net.OkGo;
 import com.orhanobut.hawk.Hawk;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
@@ -29,6 +33,19 @@ public class App extends Application {
         Hawk.init(this).build();
         initLegacySSL();
         initDefaultConfigs();
+
+        // 初始化状态页加载组件
+        LoadSir.beginBuilder()
+                .addCallback(new EmptyCallback())
+                .addCallback(new LoadingCallback())
+                .setDefaultCallback(LoadingCallback.class)
+                .commit();
+
+        // 初始化网络与控制服务
+        try {
+            OkGo.getInstance().init(this);
+            ControlManager.init(this);
+        } catch (Throwable ignored) {}
     }
 
     public static App getInstance() {
@@ -70,14 +87,15 @@ public class App extends Application {
     }
 
     private void initDefaultConfigs() {
-        if (!Hawk.contains(HawkConfig.PLAY_TYPE)) {
-            Hawk.put(HawkConfig.PLAY_TYPE, 1);
+        // 使用字符串字面量保障向后兼容，规避部分分支 HawkConfig 字段变动
+        if (!Hawk.contains("play_type")) {
+            Hawk.put("play_type", 1);
         }
-        if (!Hawk.contains(HawkConfig.IJK_CODEC)) {
-            Hawk.put(HawkConfig.IJK_CODEC, "软解码");
+        if (!Hawk.contains("ijk_codec")) {
+            Hawk.put("ijk_codec", "软解码");
         }
-        if (!Hawk.contains(HawkConfig.HOME_REC)) {
-            Hawk.put(HawkConfig.HOME_REC, 1);
+        if (!Hawk.contains("home_rec")) {
+            Hawk.put("home_rec", 1);
         }
     }
 }

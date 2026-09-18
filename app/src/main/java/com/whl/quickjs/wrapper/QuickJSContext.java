@@ -11,6 +11,10 @@ public class QuickJSContext {
         default String getModuleCode(String moduleBaseName, String moduleName) { return null; }
         default String loadModule(String moduleName) { return null; }
         default String loadModule(String moduleBaseName, String moduleName) { return null; }
+        default String convertModuleName(String moduleBaseName, String moduleName) { return moduleName; }
+        default String convertModuleName(String moduleName) { return moduleName; }
+        default boolean moduleFileExists(String moduleName) { return false; }
+        default boolean moduleFileExists(String moduleBaseName, String moduleName) { return false; }
     }
 
     public interface BytecodeModuleLoader extends DefaultModuleLoader {
@@ -34,6 +38,14 @@ public class QuickJSContext {
         default String loadModule(String moduleName) { return null; }
         @Override
         default String loadModule(String moduleBaseName, String moduleName) { return null; }
+        @Override
+        default String convertModuleName(String moduleBaseName, String moduleName) { return moduleName; }
+        @Override
+        default String convertModuleName(String moduleName) { return moduleName; }
+        @Override
+        default boolean moduleFileExists(String moduleName) { return false; }
+        @Override
+        default boolean moduleFileExists(String moduleBaseName, String moduleName) { return false; }
     }
 
     public interface Console {

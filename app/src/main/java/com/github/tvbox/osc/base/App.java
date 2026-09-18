@@ -23,6 +23,7 @@ public class App extends Application {
     private String dashData = "";
     private VodInfo vodInfo;
 
+    // 供 Jianpian.java 直接调用的成员
     public static String burl = "";
     private static P2PClass p2p;
 
@@ -70,9 +71,13 @@ public class App extends Application {
     public static P2PClass getp2p() {
         if (p2p == null) {
             try {
-                Context ctx = getContext();
-                String cacheDir = ctx != null ? ctx.getCacheDir().getAbsolutePath() : "";
-                p2p = new P2PClass(cacheDir);
+                String path = "";
+                if (instance != null) {
+                    java.io.File cache = instance.getExternalCacheDir();
+                    if (cache == null) cache = instance.getCacheDir();
+                    if (cache != null) path = cache.getAbsolutePath();
+                }
+                p2p = new P2PClass(path);
             } catch (Throwable t) {
                 p2p = new P2PClass("");
             }

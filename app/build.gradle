@@ -97,15 +97,19 @@ dependencies {
     implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
     implementation project(':player')
 
-    // 经各仓库验证可直接拉取的稳定版本
+    // 关键补齐：解决 Android x86 设备缺少 ijk 播放器 .so 文件导致的 UnsatisfiedLinkError 闪退
+    implementation 'tv.danmaku.ijk.media:ijkplayer-x86:0.8.8'
+
+    // 列表控件与适配器
     implementation 'com.owen:tv-recyclerview:2.0.0'
+    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.50'
 
     // 文件选择器、屏幕适配与动态权限
     implementation 'com.obsez.android.lib.filechooser:filechooser:1.2.0'
     implementation 'me.jessyan:autosize:1.2.1'
     implementation 'com.github.getActivity:XXPermissions:11.6'
 
-    // IO 处理与 XStream 序列化
+    // IO 流处理与 XStream 序列化
     implementation 'commons-io:commons-io:2.11.0'
     implementation('com.thoughtworks.xstream:xstream:1.4.18') {
         exclude group: 'xmlpull', module: 'xmlpull'
@@ -125,9 +129,6 @@ dependencies {
         exclude group: 'xyz.doikki.android.dkplayer', module: 'dkplayer-java'
     }
 
-    // BRVAH 列表适配器基类
-    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.50'
-
     // AndroidX 核心组件
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'androidx.core:core:1.5.0'
@@ -143,7 +144,7 @@ dependencies {
     implementation 'androidx.room:room-runtime:2.3.0'
     annotationProcessor 'androidx.room:room-compiler:2.3.0'
 
-    // 网络与图像组件（锁定 4.x 兼容版本）
+    // 网络与图像组件
     implementation 'com.squareup.okhttp3:okhttp:3.12.13'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.13'
     implementation 'com.squareup.okio:okio:1.17.5'

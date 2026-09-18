@@ -31,15 +31,12 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.3.1'
 
-    // 仅拉取 x86 与 armv7a 原生 C/C++ 库，排除 Java 重复类
+    // 仅拉取 x86 底层 C/C++ 动态库，排除 Java 类避免本地代码冲突
     implementation('tv.danmaku.ijk.media:ijkplayer-x86:0.8.8') {
         exclude group: 'tv.danmaku.ijk.media', module: 'ijkplayer-java'
     }
-    implementation('tv.danmaku.ijk.media:ijkplayer-armv7a:0.8.8') {
-        exclude group: 'tv.danmaku.ijk.media', module: 'ijkplayer-java'
-    }
 
-    // ExoPlayer 核心依赖
+    // ExoPlayer 核心组件
     implementation 'com.google.android.exoplayer:exoplayer-core:2.14.2'
     implementation 'com.google.android.exoplayer:exoplayer-hls:2.14.2'
     implementation 'com.google.android.exoplayer:exoplayer-dash:2.14.2'

@@ -23,7 +23,6 @@ public class App extends Application {
     private String dashData = "";
     private VodInfo vodInfo;
 
-    // 解决 Jianpian.java 访问的静态属性与对象
     public static String burl = "";
     private static P2PClass p2p;
 
@@ -70,7 +69,13 @@ public class App extends Application {
 
     public static P2PClass getp2p() {
         if (p2p == null) {
-            p2p = new P2PClass();
+            try {
+                Context ctx = getContext();
+                String cacheDir = ctx != null ? ctx.getCacheDir().getAbsolutePath() : "";
+                p2p = new P2PClass(cacheDir);
+            } catch (Throwable t) {
+                p2p = new P2PClass("");
+            }
         }
         return p2p;
     }

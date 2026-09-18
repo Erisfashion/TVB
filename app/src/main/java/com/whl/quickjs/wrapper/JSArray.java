@@ -1,5 +1,6 @@
 package com.whl.quickjs.wrapper;
 
+import org.json.JSONArray;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,5 +61,13 @@ public class JSArray extends JSObject {
     public JSFunction getJSFunction(int index) {
         Object val = get(index);
         return val instanceof JSFunction ? (JSFunction) val : null;
+    }
+
+    public JSONArray toJsonArray() {
+        JSONArray jsonArray = new JSONArray();
+        for (Object item : items) {
+            jsonArray.put(item);
+        }
+        return jsonArray;
     }
 }

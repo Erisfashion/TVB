@@ -1,6 +1,35 @@
 package com.whl.quickjs.wrapper;
 
 public class QuickJSContext {
+
+    public interface DefaultModuleLoader {
+        String getModuleStringCode(String moduleName);
+    }
+
+    public interface BytecodeModuleLoader extends DefaultModuleLoader {
+        byte[] getModuleBytecode(String moduleName);
+
+        @Override
+        default String getModuleStringCode(String moduleName) {
+            return null;
+        }
+
+        default String getModuleCode(String moduleName) {
+            return null;
+        }
+
+        default boolean moduleFileExists(String moduleName) {
+            return false;
+        }
+    }
+
+    public interface Console {
+        void log(String msg);
+        default void info(String msg) {}
+        default void warn(String msg) {}
+        default void error(String msg) {}
+    }
+
     public static QuickJSContext create() {
         return new QuickJSContext();
     }
@@ -15,12 +44,39 @@ public class QuickJSContext {
         return null;
     }
 
+    public Object evaluateModule(String script, String moduleName) {
+        return null;
+    }
+
+    public Object evaluateModule(String script) {
+        return null;
+    }
+
+    public byte[] compileModule(String script, String moduleName) {
+        return new byte[0];
+    }
+
+    public byte[] compileModule(String script) {
+        return new byte[0];
+    }
+
+    public void setModuleLoader(BytecodeModuleLoader loader) {}
+    public void setModuleLoader(DefaultModuleLoader loader) {}
+    public void setModuleLoader(Object loader) {}
+
+    public void setConsole(Console console) {}
+    public void setConsole(Object console) {}
+
+    public Object get(JSObject obj, String key) {
+        return obj != null ? obj.get(key) : null;
+    }
+
     public JSObject getGlobalObject() {
-        return new JSObject();
+        return new JSObject(this);
     }
 
     public JSObject createNewJSObject() {
-        return new JSObject();
+        return new JSObject(this);
     }
 
     public JSArray createNewJSArray() {
@@ -28,7 +84,7 @@ public class QuickJSContext {
     }
 
     public JSObject createJSObject() {
-        return new JSObject();
+        return new JSObject(this);
     }
 
     public JSArray createJSArray() {
@@ -44,7 +100,7 @@ public class QuickJSContext {
     }
 
     public Object parse(String json) {
-        return new JSObject();
+        return new JSObject(this);
     }
 
     public void registerJavaMethod(Object target, String methodName) {}

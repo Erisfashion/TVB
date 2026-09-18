@@ -6,7 +6,6 @@ import android.animation.AnimatorSet;
 import android.animation.IntEvaluator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,7 +41,6 @@ import com.github.tvbox.osc.ui.adapter.HomePageAdapter;
 import com.github.tvbox.osc.ui.adapter.SelectDialogAdapter;
 import com.github.tvbox.osc.ui.adapter.SortAdapter;
 import com.github.tvbox.osc.ui.dialog.SelectDialog;
-import com.github.tvbox.osc.ui.dialog.TipDialog;
 import com.github.tvbox.osc.ui.fragment.GridFragment;
 import com.github.tvbox.osc.ui.fragment.UserFragment;
 import com.github.tvbox.osc.ui.tv.widget.DefaultTransformer;
@@ -65,7 +63,6 @@ import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -107,18 +104,6 @@ public class HomeActivity extends BaseActivity {
                 tvDate.setText(timeFormat.format(date));
             }
             mHandler.postDelayed(this, 1000);
-        }
-    };
-
-    // 针对平板的 5 秒超时保护：防止无接口或网络不通时永久卡死在“大T字”遮罩层
-    private final Runnable mTimeoutRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (isLoading()) {
-                showSuccess();
-                refreshEmpty();
-                Toast.makeText(HomeActivity.this, "已进入首页，请点击【设置】配置接口地址", Toast.LENGTH_SHORT).show();
-            }
         }
     };
 
@@ -287,7 +272,6 @@ public class HomeActivity extends BaseActivity {
                         }
                     }).start();
                 } else {
-                    Toast.makeText(mContext, "请先在设置中配置接口地址", Toast.LENGTH_SHORT).show();
                     jumpActivity(SettingActivity.class);
                 }
             }
@@ -310,7 +294,6 @@ public class HomeActivity extends BaseActivity {
         sourceViewModel.sortResult.observe(this, new Observer<AbsSortXml>() {
             @Override
             public void onChanged(AbsSortXml absXml) {
-                mHandler.removeCallbacks(mTimeoutRunnable);
                 if (skipNextUpdate) {
                     skipNextUpdate = false;
                     return;
@@ -337,13 +320,13 @@ public class HomeActivity extends BaseActivity {
 
     private void initData() {
         String apiUrl = Hawk.get(HawkConfig.API_URL, "");
-        // 全新安装未配置接口，直接展示“我的”设置主页，不进入加载死锁
+        // 关键防护：未配置接口地址时，绝不进入阻塞加载，直接渲染带有【设置】按键的首页
         if (apiUrl == null || apiUrl.trim().isEmpty()) {
             dataInitOk = true;
             jarInitOk = true;
             showSuccess();
             refreshEmpty();
-            Toast.makeText(this, "欢迎使用！请点击【设置】配置数据源接口", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "请点击【设置】配置数据源接口", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -369,15 +352,11 @@ public class HomeActivity extends BaseActivity {
         tvNameAnimation();
         showLoading();
 
-        mHandler.removeCallbacks(mTimeoutRunnable);
-        mHandler.postDelayed(mTimeoutRunnable, 5000);
-
         if (dataInitOk && !jarInitOk) {
             if (!ApiConfig.get().getSpider().isEmpty()) {
                 ApiConfig.get().loadJar(useCacheConfig, ApiConfig.get().getSpider(), new ApiConfig.LoadConfigCallback() {
                     @Override
                     public void success() {
-                        mHandler.removeCallbacks(mTimeoutRunnable);
                         jarInitOk = true;
                         mHandler.postDelayed(() -> initData(), 50);
                     }
@@ -389,7 +368,6 @@ public class HomeActivity extends BaseActivity {
 
                     @Override
                     public void error(String msg) {
-                        mHandler.removeCallbacks(mTimeoutRunnable);
                         jarInitOk = true;
                         dataInitOk = true;
                         mHandler.postDelayed(() -> {
@@ -406,8 +384,6 @@ public class HomeActivity extends BaseActivity {
         }
 
         ApiConfig.get().loadConfig(useCacheConfig, new ApiConfig.LoadConfigCallback() {
-            TipDialog dialog = null;
-
             @Override
             public void notice(String msg) {
                 mHandler.post(() -> Toast.makeText(HomeActivity.this, msg, Toast.LENGTH_SHORT).show());
@@ -415,7 +391,6 @@ public class HomeActivity extends BaseActivity {
 
             @Override
             public void success() {
-                mHandler.removeCallbacks(mTimeoutRunnable);
                 dataInitOk = true;
                 if (ApiConfig.get().getSpider().isEmpty()) {
                     jarInitOk = true;
@@ -425,13 +400,13 @@ public class HomeActivity extends BaseActivity {
 
             @Override
             public void error(String msg) {
-                mHandler.removeCallbacks(mTimeoutRunnable);
+                // 关键重构：网络或配置出错时，彻底关闭大T字遮罩，展示功能菜单供平板触屏操作
                 mHandler.post(() -> {
                     dataInitOk = true;
                     jarInitOk = true;
                     showSuccess();
                     refreshEmpty();
-                    Toast.makeText(HomeActivity.this, "加载配置失败，请在【设置】中检查接口", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HomeActivity.this, "接口连接失败，请点击【设置】检查接口地址", Toast.LENGTH_LONG).show();
                 });
             }
         }, this);
@@ -655,7 +630,6 @@ public class HomeActivity extends BaseActivity {
         EventBus.getDefault().unregister(this);
         mHandler.removeCallbacksAndMessages(null);
         ControlManager.get().stopServer();
-        // 移除了进程自毁代码，防止 Activity 重启或配置变更时误退出到桌面
     }
 
     private SelectDialog<SourceBean> mSiteSwitchDialog;
@@ -724,10 +698,13 @@ public class HomeActivity extends BaseActivity {
         String homeKey = home != null ? home.getKey() : "";
         sortAdapter.setNewData(DefaultConfig.adjustSort(homeKey, new ArrayList<>(), true));
         initViewPager(null);
-        tvName.clearAnimation();
+        if (tvName != null) {
+            tvName.clearAnimation();
+        }
     }
 
     private void tvNameAnimation() {
+        if (tvName == null) return;
         AlphaAnimation blinkAnimation = new AlphaAnimation(0.0f, 1.0f);
         blinkAnimation.setDuration(500);
         blinkAnimation.setStartOffset(20);

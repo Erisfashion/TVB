@@ -57,9 +57,11 @@ android {
         pickFirst 'lib/x86/libijkffmpeg.so'
         pickFirst 'lib/x86/libijkplayer.so'
         pickFirst 'lib/x86/libijksdl.so'
+        pickFirst 'lib/x86/libquickjs-android.so'
         pickFirst 'lib/armeabi-v7a/libijkffmpeg.so'
         pickFirst 'lib/armeabi-v7a/libijkplayer.so'
         pickFirst 'lib/armeabi-v7a/libijksdl.so'
+        pickFirst 'lib/armeabi-v7a/libquickjs-android.so'
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE'
@@ -95,10 +97,16 @@ dependencies {
     implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
     implementation project(':player')
 
+    // 解决 AutoSizeUtils 缺失错误
+    implementation 'me.jessyan:autosize:1.2.1'
+
+    // 解决 XXPermissions、Permission、OnPermissionCallback 缺失错误
+    implementation 'com.github.getActivity:XXPermissions:11.6'
+
     // 解决 SubtitleLoader 缺失 ReaderInputStream
     implementation 'commons-io:commons-io:2.11.0'
 
-    // XStream 序列化支持
+    // XStream 序列化支持（排除 xmlpull 规避类冲突）
     implementation('com.thoughtworks.xstream:xstream:1.4.18') {
         exclude group: 'xmlpull', module: 'xmlpull'
     }

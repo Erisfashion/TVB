@@ -103,8 +103,22 @@ public class HomeActivity extends BaseActivity {
             Date date = new Date();
             @SuppressLint("SimpleDateFormat")
             SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-            tvDate.setText(timeFormat.format(date));
+            if (tvDate != null) {
+                tvDate.setText(timeFormat.format(date));
+            }
             mHandler.postDelayed(this, 1000);
+        }
+    };
+
+    // 针对平板的 5 秒超时保护：防止无接口或网络不通时永久卡死在“大T字”遮罩层
+    private final Runnable mTimeoutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isLoading()) {
+                showSuccess();
+                refreshEmpty();
+                Toast.makeText(HomeActivity.this, "已进入首页，请点击【设置】配置接口地址", Toast.LENGTH_SHORT).show();
+            }
         }
     };
 
@@ -145,10 +159,12 @@ public class HomeActivity extends BaseActivity {
             @Override
             public void onChanged() {
                 mGridView.post(() -> {
-                    View firstChild = Objects.requireNonNull(mGridView.getLayoutManager()).findViewByPosition(0);
-                    if (firstChild != null) {
-                        mGridView.setSelection(0);
-                        firstChild.requestFocus();
+                    if (mGridView.getLayoutManager() != null) {
+                        View firstChild = mGridView.getLayoutManager().findViewByPosition(0);
+                        if (firstChild != null) {
+                            mGridView.setSelection(0);
+                            firstChild.requestFocus();
+                        }
                     }
                 });
             }
@@ -250,13 +266,13 @@ public class HomeActivity extends BaseActivity {
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
                 SourceBean homeSource = ApiConfig.get().getHomeSourceBean();
-                if (dataInitOk && jarInitOk && homeSource != null) {
+                if (dataInitOk && jarInitOk && homeSource != null && homeSource.getKey() != null && !homeSource.getKey().isEmpty()) {
                     String cspCachePath = FileUtils.getFilePath() + "/csp/";
                     String jar = homeSource.getJar();
                     String jarUrl = (jar != null && !jar.isEmpty()) ? jar : ApiConfig.get().getSpider();
                     if (jarUrl == null) jarUrl = "";
                     File cspCacheDir = new File(cspCachePath + MD5.string2MD5(jarUrl) + ".jar");
-                    Toast.makeText(mContext, "jar缓存已清除", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, "jar缓存已清除", Toast.LENGTH_SHORT).show();
                     if (!cspCacheDir.exists()) {
                         refreshHome();
                         return;
@@ -265,7 +281,7 @@ public class HomeActivity extends BaseActivity {
                         try {
                             FileUtils.deleteFile(cspCacheDir);
                             ApiConfig.get().clearJarLoader();
-                            refreshHome();
+                            mHandler.post(() -> refreshHome());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -294,6 +310,7 @@ public class HomeActivity extends BaseActivity {
         sourceViewModel.sortResult.observe(this, new Observer<AbsSortXml>() {
             @Override
             public void onChanged(AbsSortXml absXml) {
+                mHandler.removeCallbacks(mTimeoutRunnable);
                 if (skipNextUpdate) {
                     skipNextUpdate = false;
                     return;
@@ -301,7 +318,7 @@ public class HomeActivity extends BaseActivity {
                 showSuccess();
                 SourceBean home = ApiConfig.get().getHomeSourceBean();
                 String homeKey = home != null ? home.getKey() : "";
-                if (absXml != null && absXml.classes != null && absXml.classes.sortList != null) {
+                if (absXml != null && absXml.classes != null && absXml.classes.sortList != null && !absXml.classes.sortList.isEmpty()) {
                     sortAdapter.setNewData(DefaultConfig.adjustSort(homeKey, absXml.classes.sortList, true));
                 } else {
                     sortAdapter.setNewData(DefaultConfig.adjustSort(homeKey, new ArrayList<>(), true));
@@ -319,9 +336,20 @@ public class HomeActivity extends BaseActivity {
     private boolean jarInitOk = false;
 
     private void initData() {
+        String apiUrl = Hawk.get(HawkConfig.API_URL, "");
+        // 全新安装未配置接口，直接展示“我的”设置主页，不进入加载死锁
+        if (apiUrl == null || apiUrl.trim().isEmpty()) {
+            dataInitOk = true;
+            jarInitOk = true;
+            showSuccess();
+            refreshEmpty();
+            Toast.makeText(this, "欢迎使用！请点击【设置】配置数据源接口", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         if (dataInitOk && jarInitOk) {
             SourceBean home = ApiConfig.get().getHomeSourceBean();
-            if (home != null && home.getKey() != null) {
+            if (home != null && home.getKey() != null && !home.getKey().isEmpty()) {
                 sourceViewModel.getSort(home.getKey());
             } else {
                 showSuccess();
@@ -337,133 +365,73 @@ public class HomeActivity extends BaseActivity {
             }
             return;
         }
+
         tvNameAnimation();
         showLoading();
+
+        mHandler.removeCallbacks(mTimeoutRunnable);
+        mHandler.postDelayed(mTimeoutRunnable, 5000);
+
         if (dataInitOk && !jarInitOk) {
             if (!ApiConfig.get().getSpider().isEmpty()) {
                 ApiConfig.get().loadJar(useCacheConfig, ApiConfig.get().getSpider(), new ApiConfig.LoadConfigCallback() {
                     @Override
                     public void success() {
+                        mHandler.removeCallbacks(mTimeoutRunnable);
                         jarInitOk = true;
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                initData();
-                            }
-                        }, 50);
+                        mHandler.postDelayed(() -> initData(), 50);
                     }
 
                     @Override
                     public void notice(String msg) {
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(HomeActivity.this, msg, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        mHandler.post(() -> Toast.makeText(HomeActivity.this, msg, Toast.LENGTH_SHORT).show());
                     }
 
                     @Override
                     public void error(String msg) {
+                        mHandler.removeCallbacks(mTimeoutRunnable);
                         jarInitOk = true;
                         dataInitOk = true;
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(HomeActivity.this, msg + "; 尝试加载最近一次的jar", Toast.LENGTH_SHORT).show();
-                                initData();
-                            }
+                        mHandler.postDelayed(() -> {
+                            Toast.makeText(HomeActivity.this, msg + "; 尝试加载最近一次的jar", Toast.LENGTH_SHORT).show();
+                            initData();
                         }, 50);
                     }
                 });
+            } else {
+                jarInitOk = true;
+                initData();
             }
             return;
         }
+
         ApiConfig.get().loadConfig(useCacheConfig, new ApiConfig.LoadConfigCallback() {
             TipDialog dialog = null;
 
             @Override
             public void notice(String msg) {
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(HomeActivity.this, msg, Toast.LENGTH_SHORT).show();
-                    }
-                });
+                mHandler.post(() -> Toast.makeText(HomeActivity.this, msg, Toast.LENGTH_SHORT).show());
             }
 
             @Override
             public void success() {
+                mHandler.removeCallbacks(mTimeoutRunnable);
                 dataInitOk = true;
                 if (ApiConfig.get().getSpider().isEmpty()) {
                     jarInitOk = true;
                 }
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        initData();
-                    }
-                }, 50);
+                mHandler.postDelayed(() -> initData(), 50);
             }
 
             @Override
             public void error(String msg) {
-                if (msg.equalsIgnoreCase("-1")) {
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            dataInitOk = true;
-                            jarInitOk = true;
-                            initData();
-                        }
-                    });
-                    return;
-                }
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (dialog == null)
-                            dialog = new TipDialog(HomeActivity.this, msg, "重试", "取消", new TipDialog.OnListener() {
-                                @Override
-                                public void left() {
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            initData();
-                                            dialog.hide();
-                                        }
-                                    });
-                                }
-
-                                @Override
-                                public void right() {
-                                    dataInitOk = true;
-                                    jarInitOk = true;
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            initData();
-                                            dialog.hide();
-                                        }
-                                    });
-                                }
-
-                                @Override
-                                public void cancel() {
-                                    dataInitOk = true;
-                                    jarInitOk = true;
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            initData();
-                                            dialog.hide();
-                                        }
-                                    });
-                                }
-                            });
-                        if (!dialog.isShowing())
-                            dialog.show();
-                    }
+                mHandler.removeCallbacks(mTimeoutRunnable);
+                mHandler.post(() -> {
+                    dataInitOk = true;
+                    jarInitOk = true;
+                    showSuccess();
+                    refreshEmpty();
+                    Toast.makeText(HomeActivity.this, "加载配置失败，请在【设置】中检查接口", Toast.LENGTH_SHORT).show();
                 });
             }
         }, this);
@@ -685,8 +653,9 @@ public class HomeActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
-        AppManager.getInstance().appExit(0);
+        mHandler.removeCallbacksAndMessages(null);
         ControlManager.get().stopServer();
+        // 移除了进程自毁代码，防止 Activity 重启或配置变更时误退出到桌面
     }
 
     private SelectDialog<SourceBean> mSiteSwitchDialog;
@@ -739,12 +708,13 @@ public class HomeActivity extends BaseActivity {
     }
 
     private void refreshHome() {
-        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        Intent intent = new Intent(this, HomeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         Bundle bundle = new Bundle();
         bundle.putBoolean("useCache", true);
         intent.putExtras(bundle);
-        HomeActivity.this.startActivity(intent);
+        startActivity(intent);
+        finish();
     }
 
     private void refreshEmpty() {

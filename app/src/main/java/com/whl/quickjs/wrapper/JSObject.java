@@ -1,5 +1,6 @@
 package com.whl.quickjs.wrapper;
 
+import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +22,39 @@ public class JSObject {
     }
 
     public void bind(Object target) {}
+    public void hold() {}
+    public void release() {}
+    public void free() {}
+
+    public JSONObject toJsonObject() {
+        JSONObject json = new JSONObject();
+        try {
+            for (Map.Entry<String, Object> entry : properties.entrySet()) {
+                Object val = entry.getValue();
+                if (val instanceof JSObject) {
+                    json.put(entry.getKey(), ((JSObject) val).toJsonObject());
+                } else if (val instanceof JSArray) {
+                    json.put(entry.getKey(), ((JSArray) val).toJsonArray());
+                } else {
+                    json.put(entry.getKey(), val);
+                }
+            }
+        } catch (Throwable ignored) {}
+        return json;
+    }
+
+    public String toJsonString() {
+        return toJsonObject().toString();
+    }
+
+    public String stringify() {
+        return toJsonString();
+    }
+
+    @Override
+    public String toString() {
+        return toJsonString();
+    }
 
     public Object get(String key) {
         return properties.get(key);

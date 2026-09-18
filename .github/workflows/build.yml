@@ -23,7 +23,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace --no-daemon --console=plain
+        run: ./gradlew :app:assembleDebug --stacktrace --no-daemon --console=plain --max-workers=1
 
       - name: Upload Output APK
         uses: actions/upload-artifact@v4

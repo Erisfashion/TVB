@@ -57,11 +57,9 @@ android {
         pickFirst 'lib/x86/libijkffmpeg.so'
         pickFirst 'lib/x86/libijkplayer.so'
         pickFirst 'lib/x86/libijksdl.so'
-        pickFirst 'lib/x86/libquickjs-android.so'
         pickFirst 'lib/armeabi-v7a/libijkffmpeg.so'
         pickFirst 'lib/armeabi-v7a/libijkplayer.so'
         pickFirst 'lib/armeabi-v7a/libijksdl.so'
-        pickFirst 'lib/armeabi-v7a/libquickjs-android.so'
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE'
@@ -97,11 +95,7 @@ dependencies {
     implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
     implementation project(':player')
 
-    // QuickJS JitPack 真实多模块坐标
-    implementation 'com.github.whataa.quickjs-android:wrapper:0.7.8'
-    implementation 'com.github.whataa.quickjs-android:android:0.7.8'
-
-    // ExoPlayer 核心与扩展组件
+    // ExoPlayer 核心与扩展
     implementation 'com.google.android.exoplayer:exoplayer:2.14.2'
     implementation 'com.google.android.exoplayer:extension-okhttp:2.14.2'
     implementation 'com.google.android.exoplayer:extension-rtmp:2.14.2'
@@ -110,12 +104,12 @@ dependencies {
     implementation 'org.jetbrains:annotations:23.0.0'
     implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
 
-    // DKPlayer UI 控制层组件
+    // 播放器 UI 组件
     implementation('xyz.doikki.android.dkplayer:dkplayer-ui:3.3.5') {
         exclude group: 'xyz.doikki.android.dkplayer', module: 'dkplayer-java'
     }
 
-    // 核心 TV 列表控件与适配器
+    // 列表与适配器
     implementation 'com.owen:tv-recyclerview:2.0.0'
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.50'
 
@@ -130,11 +124,11 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.3.1'
 
-    // Room 本地数据库
+    // Room 数据库
     implementation 'androidx.room:room-runtime:2.3.0'
     annotationProcessor 'androidx.room:room-compiler:2.3.0'
 
-    // 网络与图像组件（锁定 4.x 兼容版本）
+    // 网络与图像
     implementation 'com.squareup.okhttp3:okhttp:3.12.13'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.13'
     implementation 'com.squareup.okio:okio:1.17.5'

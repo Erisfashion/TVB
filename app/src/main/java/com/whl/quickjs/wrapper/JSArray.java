@@ -11,6 +11,30 @@ public class JSArray extends JSObject {
         return items.size();
     }
 
+    public int size() {
+        return items.size();
+    }
+
+    public void push(int val) {
+        items.add(val);
+    }
+
+    public void push(Object val) {
+        items.add(val);
+    }
+
+    public void push(Object... args) {
+        if (args != null) {
+            for (Object arg : args) {
+                items.add(arg);
+            }
+        }
+    }
+
+    public void add(Object val) {
+        items.add(val);
+    }
+
     public Object get(int index) {
         if (index >= 0 && index < items.size()) {
             return items.get(index);
@@ -66,7 +90,13 @@ public class JSArray extends JSObject {
     public JSONArray toJsonArray() {
         JSONArray jsonArray = new JSONArray();
         for (Object item : items) {
-            jsonArray.put(item);
+            if (item instanceof JSObject) {
+                jsonArray.put(((JSObject) item).toJsonObject());
+            } else if (item instanceof JSArray) {
+                jsonArray.put(((JSArray) item).toJsonArray());
+            } else {
+                jsonArray.put(item);
+            }
         }
         return jsonArray;
     }

@@ -27,8 +27,24 @@ public class QuickJSContext {
         return new JSArray();
     }
 
+    public JSObject createJSObject() {
+        return new JSObject();
+    }
+
+    public JSArray createJSArray() {
+        return new JSArray();
+    }
+
     public JSFunction createNewJSFunction(JSCallFunction function) {
         return new JSFunction();
+    }
+
+    public JSFunction createJSFunction(JSCallFunction function) {
+        return new JSFunction();
+    }
+
+    public Object parse(String json) {
+        return new JSObject();
     }
 
     public void registerJavaMethod(Object target, String methodName) {}

@@ -49,14 +49,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.HttpUrl;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
-/**
- * @author pj567
- * @date :2020/12/23
- * @description:
- */
 public class ModelSettingFragment extends BaseLazyFragment {
     private TextView tvDebugOpen;
     private TextView tvMediaCodec;
@@ -118,7 +112,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvParseWebView.setText(Hawk.get(HawkConfig.PARSE_WEBVIEW, true) ? "系统自带" : "XWalkView");
         tvApi.setText(Hawk.get(HawkConfig.API_URL, ""));
 
-        // 1. 防御 OkGoHelper.dnsHttpsList 为空导致的 IndexOutOfBoundsException: Invalid index 0, size is 0
+        // 防护 1：防御 dnsHttpsList 列表越界异常
         if (OkGoHelper.dnsHttpsList != null && !OkGoHelper.dnsHttpsList.isEmpty()) {
             int dohIdx = Hawk.get(HawkConfig.DOH_URL, 0);
             if (dohIdx >= 0 && dohIdx < OkGoHelper.dnsHttpsList.size()) {
@@ -134,7 +128,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvHistoryNum.setText(HistoryHelper.getHistoryNumName(Hawk.get(HawkConfig.HISTORY_NUM, 0)));
         tvSearchView.setText(getSearchView(Hawk.get(HawkConfig.SEARCH_VIEW, 0)));
 
-        // 2. 防御未配置主数据源时的 NullPointerException
+        // 防护 2：防御未配置源时 HomeSourceBean 空指针
         SourceBean homeSourceBean = ApiConfig.get().getHomeSourceBean();
         tvHomeApi.setText(homeSourceBean != null ? homeSourceBean.getName() : "未配置");
 

@@ -3,6 +3,7 @@ package com.github.tvbox.osc.ui.dialog;
 import android.content.Context;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.ui.adapter.SelectDialogAdapter;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
@@ -14,7 +15,6 @@ public class SelectDialog<T> extends BaseDialog {
     private TvRecyclerView tvRecyclerView;
     private SelectDialogAdapter<T> adapter;
 
-    // 定义归属于 SelectDialog 的回调接口
     public interface ItemCallback<T> {
         void click(T item);
     }
@@ -37,8 +37,8 @@ public class SelectDialog<T> extends BaseDialog {
         return setTip(title);
     }
 
-    // 参数类型更正为 ItemCallback<T>
-    public SelectDialog<T> setAdapter(SelectDialogAdapter.SelectDialogInterface<T> dialogInterface, ItemCallback<T> itemCallback, ArrayList<T> data, int select) {
+    // 支持 ModelSettingFragment 等传入的 DiffUtil.ItemCallback
+    public SelectDialog<T> setAdapter(SelectDialogAdapter.SelectDialogInterface<T> dialogInterface, DiffUtil.ItemCallback<T> itemCallback, ArrayList<T> data, int select) {
         adapter = new SelectDialogAdapter<>(dialogInterface, itemCallback);
         adapter.setData(data, select);
         if (tvRecyclerView != null) {
@@ -48,8 +48,29 @@ public class SelectDialog<T> extends BaseDialog {
         return this;
     }
 
-    // 参数类型更正为 ItemCallback<T>
-    public SelectDialog<T> setAdapter(SelectDialogAdapter.SelectDialogInterface<T> dialogInterface, ItemCallback<T> itemCallback, List<T> data, int select) {
+    public SelectDialog<T> setAdapter(SelectDialogAdapter.SelectDialogInterface<T> dialogInterface, DiffUtil.ItemCallback<T> itemCallback, List<T> data, int select) {
+        ArrayList<T> list = new ArrayList<>();
+        if (data != null) {
+            list.addAll(data);
+        }
+        return setAdapter(dialogInterface, itemCallback, list, select);
+    }
+
+    // 保留通用 Object 回调重载以应对其他调用方
+    public SelectDialog<T> setAdapter(SelectDialogAdapter.SelectDialogInterface<T> dialogInterface, Object itemCallback, ArrayList<T> data, int select) {
+        if (itemCallback instanceof DiffUtil.ItemCallback) {
+            return setAdapter(dialogInterface, (DiffUtil.ItemCallback<T>) itemCallback, data, select);
+        }
+        adapter = new SelectDialogAdapter<>(dialogInterface, null);
+        adapter.setData(data, select);
+        if (tvRecyclerView != null) {
+            tvRecyclerView.setAdapter(adapter);
+            tvRecyclerView.setSelection(select);
+        }
+        return this;
+    }
+
+    public SelectDialog<T> setAdapter(SelectDialogAdapter.SelectDialogInterface<T> dialogInterface, Object itemCallback, List<T> data, int select) {
         ArrayList<T> list = new ArrayList<>();
         if (data != null) {
             list.addAll(data);

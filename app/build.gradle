@@ -95,7 +95,21 @@ dependencies {
     implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
     implementation project(':player')
 
-    // DKPlayer UI 控制层组件（排除远程 Java 类，使用工程内定制的 :player）
+    // 1. 解决 ExoPlayer.java 与 M3u8.java 缺失符号问题
+    implementation 'com.google.android.exoplayer:exoplayer:2.14.2'
+    implementation 'com.google.android.exoplayer:extension-okhttp:2.14.2'
+    implementation 'com.google.android.exoplayer:extension-rtmp:2.14.2'
+
+    // 2. 解决 LiveController 与 BrotliInterceptor 缺失 org.jetbrains.annotations
+    implementation 'org.jetbrains:annotations:23.0.0'
+
+    // 3. 解决 CharsetUtils 缺失 UniversalDetector
+    implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
+
+    // 4. 解决 FunCall 与 JsSpider 缺失 com.whl.quickjs.wrapper.*
+    implementation 'io.github.whataa:quickjs-android:0.7.8'
+
+    // DKPlayer UI 组件（使用工程内定制的 :player）
     implementation('xyz.doikki.android.dkplayer:dkplayer-ui:3.3.5') {
         exclude group: 'xyz.doikki.android.dkplayer', module: 'dkplayer-java'
     }
@@ -103,10 +117,10 @@ dependencies {
     // 核心 TV 列表控件
     implementation 'com.owen:tv-recyclerview:2.0.0'
 
-    // 关键修正：必须使用 2.9.50（保持 com.chad.library.adapter.base.BaseViewHolder 包名不变）
+    // BRVAH 适配器基类库
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.50'
 
-    // AndroidX 核心库
+    // AndroidX 核心组件
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'androidx.core:core:1.5.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
@@ -117,11 +131,11 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.3.1'
 
-    // Room 本地数据库
+    // Room 数据库
     implementation 'androidx.room:room-runtime:2.3.0'
     annotationProcessor 'androidx.room:room-compiler:2.3.0'
 
-    // 网络与图片组件（锁定 4.x 兼容版本）
+    // 网络与图像
     implementation 'com.squareup.okhttp3:okhttp:3.12.13'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.13'
     implementation 'com.squareup.okio:okio:1.17.5'

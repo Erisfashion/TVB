@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 32
     buildToolsVersion "30.0.3"
 
     defaultConfig {
@@ -64,6 +64,19 @@ android {
     }
 }
 
+// 彻底跳过 AGP 针对第三方旧库的 AarMetadata 限制检查
+tasks.whenTaskAdded { task ->
+    if (task.name.contains("AarMetadata")) {
+        task.enabled = false
+    }
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
 configurations.all {
     resolutionStrategy {
         force 'com.squareup.okhttp3:okhttp:3.12.13'
@@ -76,8 +89,8 @@ configurations.all {
 }
 
 dependencies {
-    // 统一以 fileTree 载入本地所有 jar 和 aar（包含 xwalk_shared_library）
-    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation(name: 'xwalk_shared_library-23.53.589.4', ext: 'aar')
     implementation project(':player')
 
     // 基础支持

@@ -28,4 +28,37 @@ public class JSArray extends JSObject {
         Object val = get(index);
         return val instanceof JSObject ? (JSObject) val : null;
     }
+
+    public JSArray getJSArray(int index) {
+        Object val = get(index);
+        return val instanceof JSArray ? (JSArray) val : null;
+    }
+
+    public String getString(int index) {
+        Object val = get(index);
+        return val != null ? String.valueOf(val) : null;
+    }
+
+    public Integer getInteger(int index) {
+        Object val = get(index);
+        if (val instanceof Number) {
+            return ((Number) val).intValue();
+        }
+        return null;
+    }
+
+    public int getInt(int index) {
+        Integer val = getInteger(index);
+        return val != null ? val : 0;
+    }
+
+    public Boolean getBoolean(int index) {
+        Object val = get(index);
+        return val instanceof Boolean ? (Boolean) val : false;
+    }
+
+    public JSFunction getJSFunction(int index) {
+        Object val = get(index);
+        return val instanceof JSFunction ? (JSFunction) val : null;
+    }
 }

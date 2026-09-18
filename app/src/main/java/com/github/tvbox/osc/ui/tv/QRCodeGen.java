@@ -10,14 +10,15 @@ import java.util.Hashtable;
 
 public class QRCodeGen {
 
-    public static Bitmap generateBitmap(String content, int width, int height) {
+    // 适配 PushActivity.java 的 4 参数调用
+    public static Bitmap generateBitmap(String content, int width, int height, int margin) {
         try {
             if (content == null || content.isEmpty()) {
                 return null;
             }
             Hashtable<EncodeHintType, Object> hints = new Hashtable<>();
             hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
-            hints.put(EncodeHintType.MARGIN, 1);
+            hints.put(EncodeHintType.MARGIN, margin);
             BitMatrix matrix = new QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, width, height, hints);
             int[] pixels = new int[width * height];
             for (int y = 0; y < height; y++) {
@@ -37,7 +38,12 @@ public class QRCodeGen {
         }
     }
 
+    // 适配 ApiDialog.java 的 3 参数调用
+    public static Bitmap generateBitmap(String content, int width, int height) {
+        return generateBitmap(content, width, height, 1);
+    }
+
     public static Bitmap createQRCode(String content) {
-        return generateBitmap(content, 300, 300);
+        return generateBitmap(content, 300, 300, 1);
     }
 }

@@ -263,7 +263,7 @@ public class JsSpider extends Spider {
                 }
             }
 
-            @Override
+
             public String moduleNormalizeName(String moduleBaseName, String moduleName) {
                 return UriUtil.resolve(moduleBaseName, moduleName);
             }

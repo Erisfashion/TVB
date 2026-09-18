@@ -13,8 +13,8 @@ android {
 
         multiDexEnabled true
 
-        // 移除 vectorDrawables.useSupportLibrary = true，为 Android 4.2 自动生成降级兼容 PNG
-        vectorDrawables.generatedDensities = ['hdpi', 'xhdpi']
+        // 关键补齐：支持 mdpi (160dpi) 与 tvdpi (213dpi) 平板设备的降级 PNG 生成
+        vectorDrawables.generatedDensities = ['mdpi', 'tvdpi', 'hdpi', 'xhdpi']
 
         ndk {
             abiFilters "x86", "armeabi-v7a"

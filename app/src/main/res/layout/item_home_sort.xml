@@ -8,6 +8,7 @@
     android:gravity="center"
     android:orientation="horizontal">
 
+    <!-- 分类标题 -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
@@ -16,12 +17,22 @@
         android:textSize="16sp"
         tools:text="分类" />
 
+    <!-- 常规筛选图标：必须使用 tvFilter ID 与 app:srcCompat -->
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/ivFilter"
+        android:id="@+id/tvFilter"
         android:layout_width="16dp"
         android:layout_height="16dp"
         android:layout_marginLeft="5dp"
         app:srcCompat="@drawable/icon_filter"
+        android:visibility="gone" />
+
+    <!-- 激活状态的高亮筛选图标：必须使用 tvFilterColor ID 与 app:srcCompat -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/tvFilterColor"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginLeft="5dp"
+        app:srcCompat="@drawable/icon_filter_color"
         android:visibility="gone" />
 
 </LinearLayout>

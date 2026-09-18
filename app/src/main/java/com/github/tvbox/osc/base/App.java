@@ -23,7 +23,7 @@ public class App extends Application {
     private String dashData = "";
     private VodInfo vodInfo;
 
-    // 解决 Jianpian.java 访问的静态属性与对象
+    // 静态成员供 Jianpian.java 直接调用
     public static String burl = "";
     private static P2PClass p2p;
 

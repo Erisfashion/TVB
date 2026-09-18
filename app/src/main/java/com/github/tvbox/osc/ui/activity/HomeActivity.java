@@ -320,13 +320,13 @@ public class HomeActivity extends BaseActivity {
 
     private void initData() {
         String apiUrl = Hawk.get(HawkConfig.API_URL, "");
-        // 关键防护：未配置接口地址时，绝不进入阻塞加载，直接渲染带有【设置】按键的首页
+        // 关键保护：无配置时不挂起遮罩，直接展示带有“设置”入口的首页
         if (apiUrl == null || apiUrl.trim().isEmpty()) {
             dataInitOk = true;
             jarInitOk = true;
             showSuccess();
             refreshEmpty();
-            Toast.makeText(this, "请点击【设置】配置数据源接口", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "欢迎使用！请点击【设置】配置数据源接口", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -400,7 +400,6 @@ public class HomeActivity extends BaseActivity {
 
             @Override
             public void error(String msg) {
-                // 关键重构：网络或配置出错时，彻底关闭大T字遮罩，展示功能菜单供平板触屏操作
                 mHandler.post(() -> {
                     dataInitOk = true;
                     jarInitOk = true;
@@ -433,8 +432,7 @@ public class HomeActivity extends BaseActivity {
                 FixedSpeedScroller scroller = new FixedSpeedScroller(mContext, new AccelerateInterpolator());
                 field.set(mViewPager, scroller);
                 scroller.setmDuration(300);
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
             mViewPager.setPageTransformer(true, new DefaultTransformer());
             mViewPager.setAdapter(pageAdapter);
             mViewPager.setCurrentItem(currentSelected, false);

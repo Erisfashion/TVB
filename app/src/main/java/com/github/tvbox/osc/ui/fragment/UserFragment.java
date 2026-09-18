@@ -78,7 +78,6 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
     @Override
     protected void onFragmentResume() {
         super.onFragmentResume();
-        // 关键防御：防止在 View 未初始化完成前调度该方法引发 NullPointerException
         if (tvHotList == null) {
             return;
         }

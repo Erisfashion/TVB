@@ -8,4 +8,10 @@ public class JSFunction extends JSObject {
     public Object call(JSObject thisObj, Object... args) {
         return null;
     }
+
+    @Override
+    public void hold() {}
+
+    @Override
+    public void release() {}
 }

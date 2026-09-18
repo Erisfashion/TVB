@@ -11,18 +11,14 @@ import java.util.List;
 
 public class ApiHistoryDialog extends BaseDialog {
     private TextView tvTitle;
-    private TvRecyclerView mGridView;
+    private TvRecyclerView tvRecyclerView;
     private ApiHistoryDialogAdapter adapter;
 
     public ApiHistoryDialog(@NonNull Context context) {
         super(context);
         setContentView(R.layout.dialog_api_history);
-        initView();
-    }
-
-    private void initView() {
         tvTitle = findViewById(R.id.tvTitle);
-        mGridView = findViewById(R.id.mGridView);
+        tvRecyclerView = findViewById(R.id.mGridView);
     }
 
     public ApiHistoryDialog setTip(String tip) {
@@ -35,9 +31,9 @@ public class ApiHistoryDialog extends BaseDialog {
     public ApiHistoryDialog setAdapter(ApiHistoryDialogAdapter.SelectDialogInterface dialogInterface, ArrayList<String> data, int select) {
         adapter = new ApiHistoryDialogAdapter(dialogInterface);
         adapter.setData(data, select);
-        if (mGridView != null) {
-            mGridView.setAdapter(adapter);
-            mGridView.setSelection(select);
+        if (tvRecyclerView != null) {
+            tvRecyclerView.setAdapter(adapter);
+            tvRecyclerView.setSelection(select);
         }
         return this;
     }

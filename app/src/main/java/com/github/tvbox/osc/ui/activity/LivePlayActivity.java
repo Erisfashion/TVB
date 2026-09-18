@@ -404,7 +404,7 @@ public class LivePlayActivity extends BaseActivity {
             }
             i = size;
             if (i >= 0 && new Date().compareTo(epgdata.get(i).enddateTime) <= 0) {
-                mRightEpgList.setSelectedPosition(i);
+                mRightEpgList.setSelection(i);
                 mRightEpgList.setSelection(i);
                 epgListAdapter.setSelectedEpgIndex(i);
                 int finalI = i;
@@ -603,7 +603,7 @@ public class LivePlayActivity extends BaseActivity {
         divEpg.setVisibility(View.VISIBLE);
         divLoadEpgleft.setVisibility(View.VISIBLE);
         divLoadEpg.setVisibility(View.GONE);
-        mRightEpgList.setSelectedPosition(epgListAdapter.getSelectedIndex());
+        mRightEpgList.setSelection(epgListAdapter.getSelectedIndex());
         epgListAdapter.notifyDataSetChanged();
     }
     //频道列表
@@ -797,7 +797,7 @@ public class LivePlayActivity extends BaseActivity {
         }
         if (tvLeftChannelListLayout.getVisibility() == View.INVISIBLE) {
             if(currentLiveLookBackIndex>-1){
-                mRightEpgList.setSelectedPosition(currentLiveLookBackIndex);
+                mRightEpgList.setSelection(currentLiveLookBackIndex);
                 mRightEpgList.post(new Runnable() {
                     @Override
                     public void run() {
@@ -1214,7 +1214,7 @@ public class LivePlayActivity extends BaseActivity {
                     mVideoView.start();
                     epgListAdapter.setShiyiSelection(position, true, timeFormat.format(date));
                     epgListAdapter.notifyDataSetChanged();
-                    mRightEpgList.setSelectedPosition(position);
+                    mRightEpgList.setSelection(position);
                     mRightEpgList.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1326,7 +1326,7 @@ public class LivePlayActivity extends BaseActivity {
                     mVideoView.start();
                     epgListAdapter.setShiyiSelection(position, true,timeFormat.format(date));
                     epgListAdapter.notifyDataSetChanged();
-                    mRightEpgList.setSelectedPosition(position);
+                    mRightEpgList.setSelection(position);
                     mRightEpgList.post(new Runnable() {
                         @Override
                         public void run() {
